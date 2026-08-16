@@ -1,0 +1,29 @@
+name: SmartSpace CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-backend:
+    name: 🔨 Build .NET 8 Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Restore NuGet packages
+        run: dotnet restore backend/SmartSpace.API/SmartSpace.API.csproj
+
+      - name: 🔨 Build API project
+        run: dotnet build backend/SmartSpace.API/SmartSpace.API.csproj --no-restore --configuration Release

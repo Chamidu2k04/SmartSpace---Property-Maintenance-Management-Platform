@@ -1,0 +1,6 @@
+@SmartSpace.API_HostAddress = http://localhost:5030
+
+GET {{SmartSpace.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,142 @@
+# ============================================================
+# SmartSpace - Comprehensive .gitignore
+# Covers: Node.js, .NET, Python, Flutter, IDEs
+# ============================================================
+
+# ────────────────────────────────────────────────────────────
+# NODE / REACT / VITE  (frontend-web)
+# ────────────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm
+.eslintcache
+.parcel-cache
+.cache/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ────────────────────────────────────────────────────────────
+# .NET / ASP.NET CORE  (backend)
+# ────────────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.userprefs
+.vs/
+_ReSharper*/
+*.ReSharper
+*.DotSettings.user
+TestResults/
+*.nupkg
+*.snupkg
+[Pp]ackages/
+PublishProfiles/
+launchSettings.json
+
+# Secrets — never commit these
+appsettings.Development.json
+appsettings.Local.json
+*.pfx
+secrets.json
+
+# ────────────────────────────────────────────────────────────
+# PYTHON / FASTAPI  (ai-service)
+# ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.eggs/
+*.egg-info/
+*.egg
+MANIFEST
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# ────────────────────────────────────────────────────────────
+# FLUTTER / DART  (mobile-app)
+# ────────────────────────────────────────────────────────────
+# Flutter/Dart tool-generated files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+flutter_*.png
+linked_*.ds
+unlinked.ds
+unlinked_spec.ds
+
+# Android
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/android/**/*.keystore
+
+# iOS
+**/ios/.symlinks/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/Generated.xcconfig
+**/ios/Pods/
+**/ios/*.xcworkspace
+
+# macOS
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral/
+
+# ────────────────────────────────────────────────────────────
+# EDITORS & IDEs
+# ────────────────────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json.example
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ────────────────────────────────────────────────────────────
+# ENVIRONMENT & SECRETS
+# ────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
