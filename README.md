@@ -1,0 +1,2 @@
+# SmartSpace - Property & Maintenance Management Platform
+The SmartSpace Management Platform is a web and mobile system that helps tenants report maintenance issues and helps property managers streamline operations. It also helps calculate maintenance costs and uses an AI-based maintenance planning workflow. Property Managers can manage units, review AI-generated repair proposals, and approve or reject proposed costs and schedules. Technicians and inventory officers can manage their own jobs and spare parts stock.
