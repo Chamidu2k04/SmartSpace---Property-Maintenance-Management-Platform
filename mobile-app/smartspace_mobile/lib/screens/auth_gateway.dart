@@ -31,9 +31,9 @@ class AuthGateway extends StatelessWidget {
     // Role-based Routing Gateway
     final role = authProvider.user?.role;
 
-    if (role == UserRole.Tenant) {
+    if (role == UserRole.tenant) {
       return const TenantDashboard();
-    } else if (role == UserRole.Technician) {
+    } else if (role == UserRole.technician) {
       return const TechnicianDashboard();
     } else {
       return const TenantDashboard();

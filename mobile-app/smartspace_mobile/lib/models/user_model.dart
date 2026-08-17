@@ -1,8 +1,8 @@
 enum UserRole {
-  Tenant,
-  PropertyManager,
-  Technician,
-  InventoryOfficer,
+  tenant,
+  propertyManager,
+  technician,
+  inventoryOfficer,
 }
 
 class UserModel {
@@ -39,14 +39,14 @@ class UserModel {
   static UserRole _parseRole(String? roleStr) {
     switch (roleStr?.toLowerCase()) {
       case 'propertymanager':
-        return UserRole.PropertyManager;
+        return UserRole.propertyManager;
       case 'technician':
-        return UserRole.Technician;
+        return UserRole.technician;
       case 'inventoryofficer':
-        return UserRole.InventoryOfficer;
+        return UserRole.inventoryOfficer;
       case 'tenant':
       default:
-        return UserRole.Tenant;
+        return UserRole.tenant;
     }
   }
 }

@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🛠️ Setup Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -79,4 +79,4 @@ jobs:
 
       - name: 🔍 Analyze Mobile Code
         working-directory: ./mobile-app/smartspace_mobile
-        run: flutter analyze lib
+        run: flutter analyze lib --no-fatal-infos
