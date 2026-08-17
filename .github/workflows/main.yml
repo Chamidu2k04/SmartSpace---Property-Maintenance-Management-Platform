@@ -1,20 +1,22 @@
-name: SmartSpace CI
+name: SmartSpace Full-Stack CI
 
 on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
-  build-backend:
-    name: 🔨 Build .NET 8 Backend
+  backend-ci:
+    name: 🔨 Backend (.NET 8 API & xUnit Tests)
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout repository
+      - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
 
       - name: 🛠️ Setup .NET 8 SDK
@@ -22,8 +24,59 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: 📦 Restore NuGet packages
+      - name: 📦 Restore Backend Packages
         run: dotnet restore backend/SmartSpace.API/SmartSpace.API.csproj
 
-      - name: 🔨 Build API project
+      - name: 🔨 Build Backend API
         run: dotnet build backend/SmartSpace.API/SmartSpace.API.csproj --no-restore --configuration Release
+
+      - name: 🧪 Run Security Unit Tests
+        run: dotnet test backend/SmartSpace.Tests/SmartSpace.Tests.csproj --configuration Release --verbosity normal
+
+  frontend-web-ci:
+    name: 🌐 Web Frontend (React + Vite)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Web Dependencies
+        working-directory: ./frontend-web
+        run: npm ci || npm install
+
+      - name: 🔨 Build Web Frontend
+        working-directory: ./frontend-web
+        run: npm run build
+
+  mobile-app-ci:
+    name: 📱 Mobile App (Flutter)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 🛠️ Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: 📦 Get Flutter Dependencies
+        working-directory: ./mobile-app/smartspace_mobile
+        run: flutter pub get
+
+      - name: 🔍 Analyze Mobile Code
+        working-directory: ./mobile-app/smartspace_mobile
+        run: flutter analyze lib --no-fatal-infos

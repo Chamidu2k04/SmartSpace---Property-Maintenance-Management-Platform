@@ -13,6 +13,10 @@ dependencies:
   # State management
   provider: ^6.1.2
 
+  # Local Persistence & Networking
+  shared_preferences: ^2.2.2
+  http: ^1.2.0
+
   # UI
   cupertino_icons: ^1.0.8
 
@@ -23,10 +27,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # TODO: Add assets and fonts here as needed
-  # assets:
-  #   - assets/images/
-  # fonts:
-  #   - family: Poppins
-  #     fonts:
-  #       - asset: assets/fonts/Poppins-Regular.ttf
