@@ -13,7 +13,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isCheckingAuth = true;
   String? _errorMessage;
 
-  static const String _baseUrl = 'http://10.0.2.2:5000/api/auth';
+  static const String _baseUrl = 'http://10.0.2.2:5030/api/auth';
 
   UserModel? get user => _user;
   String? get token => _token;
