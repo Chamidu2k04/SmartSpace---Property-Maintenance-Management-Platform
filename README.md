@@ -61,7 +61,7 @@ SmartSpace/
 ```bash
 cd backend/SmartSpace.API
 dotnet run
-# API available at https://localhost:5001
+# API available at http://localhost:5030 (Swagger at http://localhost:5030/swagger)
 ```
 
 **Web Frontend (React + Vite):**
