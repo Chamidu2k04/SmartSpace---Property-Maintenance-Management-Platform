@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
@@ -13,7 +14,15 @@ class AuthProvider extends ChangeNotifier {
   bool _isCheckingAuth = true;
   String? _errorMessage;
 
-  static const String _baseUrl = 'http://10.0.2.2:5000/api/auth';
+  static String get _baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5030/api/auth';
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:5030/api/auth';
+    } else {
+      return 'http://localhost:5030/api/auth';
+    }
+  }
 
   UserModel? get user => _user;
   String? get token => _token;
