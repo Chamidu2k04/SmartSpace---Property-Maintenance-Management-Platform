@@ -39,7 +39,6 @@ TestResults/
 *.snupkg
 [Pp]ackages/
 PublishProfiles/
-launchSettings.json
 
 # Secrets — never commit these
 appsettings.Development.json
@@ -113,6 +112,17 @@ unlinked_spec.ds
 # macOS
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral/
+
+# Linux
+**/linux/flutter/ephemeral/
+**/linux/flutter/generated_*
+
+# Windows
+**/windows/flutter/ephemeral/
+**/windows/flutter/generated_*
+
+# Web
+**/web/index.html
 
 # ────────────────────────────────────────────────────────────
 # EDITORS & IDEs
