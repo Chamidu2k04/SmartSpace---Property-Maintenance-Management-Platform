@@ -58,11 +58,25 @@ SmartSpace/
 ### Running Each Service
 
 **Backend (ASP.NET Core):**
-```bash
-cd backend/SmartSpace.API
-dotnet run
-# API available at http://localhost:5030 (Swagger at http://localhost:5030/swagger)
-```
+
+1. Navigate to the API directory:
+   ```bash
+   cd backend/SmartSpace.API
+   ```
+
+2. Initialize user secrets and configure your database connection string:
+   ```bash
+   dotnet user-secrets init
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=aws-0-<region>.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.<project-ref>;Password=<your-password>"
+   ```
+   > [!IMPORTANT]
+   > Use the Supabase **IPv4 connection pooler** hostname (`aws-0-<region>.pooler.supabase.com` on port `5432` with username `postgres.<project-ref>`) instead of the direct database hostname (`db.<project-ref>.supabase.co`). This prevents DNS and IPv6 socket resolution errors (*"No such host is known"*) on IPv4 networks.
+
+3. Run the application:
+   ```bash
+   dotnet run
+   # API available at http://localhost:5030 (Swagger at http://localhost:5030/swagger)
+   ```
 
 **Web Frontend (React + Vite):**
 ```bash
