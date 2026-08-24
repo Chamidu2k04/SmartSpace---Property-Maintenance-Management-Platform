@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSpace.API.Models;
+using SmartSpace.API.Models.Inventory;
 using SmartSpace.API.Models.PropertyManagement;
 
 namespace SmartSpace.API.Data;
@@ -15,6 +16,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<Unit> Units => Set<Unit>();
     public DbSet<Lease> Leases => Set<Lease>();
+
+    // Inventory & Supplier Management
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
+    public DbSet<PartsReservation> PartsReservations => Set<PartsReservation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,8 +69,45 @@ public class ApplicationDbContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
+        // Inventory & Supplier Management Entity Configurations
+        modelBuilder.Entity<Supplier>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Name).IsRequired().HasMaxLength(150);
+            entity.Property(s => s.ContactEmail).IsRequired().HasMaxLength(255);
+            entity.Property(s => s.Phone).HasMaxLength(20);
+
+            entity.HasMany(s => s.InventoryItems)
+                  .WithOne(i => i.Supplier)
+                  .HasForeignKey(i => i.SupplierId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<InventoryItem>(entity =>
+        {
+            entity.HasKey(i => i.Id);
+            entity.Property(i => i.ItemName).IsRequired().HasMaxLength(150);
+            entity.Property(i => i.Category).HasConversion<string>().IsRequired();
+            entity.Property(i => i.StockQuantity).IsRequired();
+            entity.Property(i => i.UnitCost).HasColumnType("decimal(18,2)").IsRequired();
+
+            entity.HasMany(i => i.PartsReservations)
+                  .WithOne(r => r.InventoryItem)
+                  .HasForeignKey(r => r.ItemId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PartsReservation>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.TicketId).IsRequired();
+            entity.Property(r => r.QuantityReserved).IsRequired();
+            entity.Property(r => r.Status).HasConversion<string>().IsRequired();
+        });
+
         // Seed 4 dummy users (one for each Role) with default hashed password "Password123!"
-        var defaultPasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!");
+        // Note: Use a fixed string here so EF Core doesn't detect a new hash every time OnModelCreating runs
+        var defaultPasswordHash = "$2a$11$tgRdwT156yLK3gANMXrNE.ahYI4BZFIdaAADs9GM1ov1zS7FMuStG";
         var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         modelBuilder.Entity<User>().HasData(
