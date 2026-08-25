@@ -20,6 +20,12 @@ builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Maintenance Request Management (Member 2)
+builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.ITicketService,
+    SmartSpace.API.Services.MaintenanceTickets.TicketService>();
+builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IFileStorageService,
+    SmartSpace.API.Services.MaintenanceTickets.LocalFileStorageService>();
+
 // 3. JWT Authentication Configuration
 var secretKey = builder.Configuration["Jwt:SecretKey"] ?? "SmartSpaceSuperSecretKeyForJWTTokenSigning2026!";
 var issuer = builder.Configuration["Jwt:Issuer"] ?? "SmartSpaceAPI";
@@ -114,6 +120,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Serves uploaded ticket photos from wwwroot/uploads (LocalFileStorageService)
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

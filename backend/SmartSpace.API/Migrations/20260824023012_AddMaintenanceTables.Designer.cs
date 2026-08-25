@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSpace.API.Data;
@@ -11,9 +12,11 @@ using SmartSpace.API.Data;
 namespace SmartSpace.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824023012_AddMaintenanceTables")]
+    partial class AddMaintenanceTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,15 +65,9 @@ namespace SmartSpace.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -249,7 +246,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "tenant@smartspace.com",
                             FullName = "John Tenant",
-                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
+                            PasswordHash = "$2a$11$9le9153OsW743WF5Ngj1Z.g9TjZ2atCuZAgWHdVXS8reDRMRXkKOS",
                             Role = "Tenant"
                         },
                         new
@@ -258,7 +255,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "manager@smartspace.com",
                             FullName = "Sarah PropertyManager",
-                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
+                            PasswordHash = "$2a$11$9le9153OsW743WF5Ngj1Z.g9TjZ2atCuZAgWHdVXS8reDRMRXkKOS",
                             Role = "PropertyManager"
                         },
                         new
@@ -267,7 +264,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "technician@smartspace.com",
                             FullName = "Alex Technician",
-                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
+                            PasswordHash = "$2a$11$9le9153OsW743WF5Ngj1Z.g9TjZ2atCuZAgWHdVXS8reDRMRXkKOS",
                             Role = "Technician"
                         },
                         new
@@ -276,7 +273,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "inventory@smartspace.com",
                             FullName = "Morgan InventoryOfficer",
-                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
+                            PasswordHash = "$2a$11$9le9153OsW743WF5Ngj1Z.g9TjZ2atCuZAgWHdVXS8reDRMRXkKOS",
                             Role = "InventoryOfficer"
                         });
                 });
