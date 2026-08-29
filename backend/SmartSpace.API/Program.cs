@@ -20,6 +20,12 @@ builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Property & Lease Management (Member 1)
+builder.Services.AddScoped<SmartSpace.API.Services.PropertyManagement.IPropertyService,
+    SmartSpace.API.Services.PropertyManagement.PropertyService>();
+builder.Services.AddScoped<SmartSpace.API.Services.PropertyManagement.ILeaseService,
+    SmartSpace.API.Services.PropertyManagement.LeaseService>();
+
 // Maintenance Request Management (Member 2)
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.ITicketService,
     SmartSpace.API.Services.MaintenanceTickets.TicketService>();
