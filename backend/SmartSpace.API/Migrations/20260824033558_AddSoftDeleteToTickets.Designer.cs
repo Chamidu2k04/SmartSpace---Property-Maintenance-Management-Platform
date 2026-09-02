@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSpace.API.Data;
@@ -11,9 +12,11 @@ using SmartSpace.API.Data;
 namespace SmartSpace.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824033558_AddSoftDeleteToTickets")]
+    partial class AddSoftDeleteToTickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,88 +24,6 @@ namespace SmartSpace.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.InventoryItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("UnitCost")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("InventoryItems");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.PartsReservation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("QuantityReserved")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TicketId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemId");
-
-                    b.ToTable("PartsReservations");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.Supplier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Suppliers");
-                });
 
             modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.AgentExecutionLog", b =>
                 {
@@ -331,7 +252,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "tenant@smartspace.com",
                             FullName = "John Tenant",
-                            PasswordHash = "$2a$11$tgRdwT156yLK3gANMXrNE.ahYI4BZFIdaAADs9GM1ov1zS7FMuStG",
+                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
                             Role = "Tenant"
                         },
                         new
@@ -340,7 +261,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "manager@smartspace.com",
                             FullName = "Sarah PropertyManager",
-                            PasswordHash = "$2a$11$tgRdwT156yLK3gANMXrNE.ahYI4BZFIdaAADs9GM1ov1zS7FMuStG",
+                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
                             Role = "PropertyManager"
                         },
                         new
@@ -349,7 +270,7 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "technician@smartspace.com",
                             FullName = "Alex Technician",
-                            PasswordHash = "$2a$11$tgRdwT156yLK3gANMXrNE.ahYI4BZFIdaAADs9GM1ov1zS7FMuStG",
+                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
                             Role = "Technician"
                         },
                         new
@@ -358,31 +279,9 @@ namespace SmartSpace.API.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "inventory@smartspace.com",
                             FullName = "Morgan InventoryOfficer",
-                            PasswordHash = "$2a$11$tgRdwT156yLK3gANMXrNE.ahYI4BZFIdaAADs9GM1ov1zS7FMuStG",
+                            PasswordHash = "$2a$11$hEUrENARFGR1inxSGdDaLOoWeifD7CGYPU/EQ9pd0wgF/e7Zwd/Ra",
                             Role = "InventoryOfficer"
                         });
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.InventoryItem", b =>
-                {
-                    b.HasOne("SmartSpace.API.Models.Inventory.Supplier", "Supplier")
-                        .WithMany("InventoryItems")
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.PartsReservation", b =>
-                {
-                    b.HasOne("SmartSpace.API.Models.Inventory.InventoryItem", "InventoryItem")
-                        .WithMany("PartsReservations")
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("InventoryItem");
                 });
 
             modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.AgentExecutionLog", b =>
@@ -454,16 +353,6 @@ namespace SmartSpace.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Property");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.InventoryItem", b =>
-                {
-                    b.Navigation("PartsReservations");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.Inventory.Supplier", b =>
-                {
-                    b.Navigation("InventoryItems");
                 });
 
             modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.MaintenanceTicket", b =>

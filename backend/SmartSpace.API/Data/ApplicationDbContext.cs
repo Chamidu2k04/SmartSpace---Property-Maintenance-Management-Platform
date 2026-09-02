@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSpace.API.Models;
 using SmartSpace.API.Models.Inventory;
 using SmartSpace.API.Models.PropertyManagement;
+using SmartSpace.API.Models.MaintenanceTickets;
 
 namespace SmartSpace.API.Data;
 
@@ -21,6 +22,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     public DbSet<PartsReservation> PartsReservations => Set<PartsReservation>();
+
+    public DbSet<MaintenanceTicket> MaintenanceTickets => Set<MaintenanceTicket>();
+    public DbSet<TicketImage> TicketImages => Set<TicketImage>();
+    public DbSet<AgentExecutionLog> AgentExecutionLogs => Set<AgentExecutionLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -103,6 +108,59 @@ public class ApplicationDbContext : DbContext
             entity.Property(r => r.TicketId).IsRequired();
             entity.Property(r => r.QuantityReserved).IsRequired();
             entity.Property(r => r.Status).HasConversion<string>().IsRequired();
+        });
+
+        // ---- Maintenance Request Management (Member 2) ----
+        modelBuilder.Entity<MaintenanceTicket>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+
+            entity.Property(t => t.UrgencyLevel)
+                  .HasConversion<string>()
+                  .HasMaxLength(20);
+
+            entity.Property(t => t.Status)
+                  .HasConversion<string>()
+                  .HasMaxLength(20);
+
+            entity.HasOne(t => t.Tenant)
+                  .WithMany()
+                  .HasForeignKey(t => t.TenantId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(t => t.Unit)
+                  .WithMany()
+                  .HasForeignKey(t => t.UnitId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(t => t.Images)
+                  .WithOne(i => i.Ticket)
+                  .HasForeignKey(i => i.TicketId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(t => t.AgentExecutionLogs)
+                  .WithOne(l => l.Ticket)
+                  .HasForeignKey(l => l.TicketId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(t => t.TenantId);
+            entity.HasIndex(t => t.Status);
+        });
+
+        modelBuilder.Entity<TicketImage>(entity =>
+        {
+            entity.HasKey(i => i.Id);
+            entity.HasIndex(i => i.TicketId);
+        });
+
+        modelBuilder.Entity<AgentExecutionLog>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+
+            entity.Property(l => l.WorkflowState)
+                  .HasColumnType("jsonb");
+
+            entity.HasIndex(l => l.TicketId);
         });
 
         // Seed 4 dummy users (one for each Role) with default hashed password "Password123!"
