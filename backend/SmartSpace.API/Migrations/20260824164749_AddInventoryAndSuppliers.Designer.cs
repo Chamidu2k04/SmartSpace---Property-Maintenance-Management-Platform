@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSpace.API.Data;
@@ -11,9 +12,11 @@ using SmartSpace.API.Data;
 namespace SmartSpace.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824164749_AddInventoryAndSuppliers")]
+    partial class AddInventoryAndSuppliers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,109 +105,6 @@ namespace SmartSpace.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Suppliers");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.AgentExecutionLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ActionTaken")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("AgentRole")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("TicketId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("WorkflowState")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("AgentExecutionLogs");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.MaintenanceTicket", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UnitId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UrgencyLevel")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UnitId");
-
-                    b.ToTable("MaintenanceTickets");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.TicketImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TicketId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("TicketImages");
                 });
 
             modelBuilder.Entity("SmartSpace.API.Models.PropertyManagement.Lease", b =>
@@ -385,47 +285,6 @@ namespace SmartSpace.API.Migrations
                     b.Navigation("InventoryItem");
                 });
 
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.AgentExecutionLog", b =>
-                {
-                    b.HasOne("SmartSpace.API.Models.MaintenanceTickets.MaintenanceTicket", "Ticket")
-                        .WithMany("AgentExecutionLogs")
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ticket");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.MaintenanceTicket", b =>
-                {
-                    b.HasOne("SmartSpace.API.Models.User", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SmartSpace.API.Models.PropertyManagement.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Tenant");
-
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.TicketImage", b =>
-                {
-                    b.HasOne("SmartSpace.API.Models.MaintenanceTickets.MaintenanceTicket", "Ticket")
-                        .WithMany("Images")
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ticket");
-                });
-
             modelBuilder.Entity("SmartSpace.API.Models.PropertyManagement.Lease", b =>
                 {
                     b.HasOne("SmartSpace.API.Models.User", "Tenant")
@@ -464,13 +323,6 @@ namespace SmartSpace.API.Migrations
             modelBuilder.Entity("SmartSpace.API.Models.Inventory.Supplier", b =>
                 {
                     b.Navigation("InventoryItems");
-                });
-
-            modelBuilder.Entity("SmartSpace.API.Models.MaintenanceTickets.MaintenanceTicket", b =>
-                {
-                    b.Navigation("AgentExecutionLogs");
-
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("SmartSpace.API.Models.PropertyManagement.Property", b =>
