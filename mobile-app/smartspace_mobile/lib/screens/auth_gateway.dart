@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import 'tenant_dashboard.dart';
 import 'technician_dashboard.dart';
+import 'parts_catalog_screen.dart';
 
 class AuthGateway extends StatelessWidget {
   const AuthGateway({super.key});
@@ -35,6 +36,8 @@ class AuthGateway extends StatelessWidget {
       return const TenantDashboard();
     } else if (role == UserRole.technician) {
       return const TechnicianDashboard();
+    } else if (role == UserRole.inventoryOfficer) {
+      return const PartsCatalogScreen();
     } else {
       return const TenantDashboard();
     }
