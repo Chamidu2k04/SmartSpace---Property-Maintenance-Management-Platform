@@ -37,12 +37,14 @@ class UserModel {
   }
 
   static UserRole _parseRole(String? roleStr) {
-    switch (roleStr?.toLowerCase()) {
+    final clean = roleStr?.replaceAll(' ', '').toLowerCase();
+    switch (clean) {
       case 'propertymanager':
         return UserRole.propertyManager;
       case 'technician':
         return UserRole.technician;
       case 'inventoryofficer':
+      case 'inventorymanager':
         return UserRole.inventoryOfficer;
       case 'tenant':
       default:
