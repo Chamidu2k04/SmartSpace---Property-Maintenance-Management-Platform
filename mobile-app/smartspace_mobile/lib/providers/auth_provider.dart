@@ -101,6 +101,8 @@ class AuthProvider extends ChangeNotifier {
         return _mockLogin('11111111-1111-1111-1111-111111111111', email, 'John Tenant', 'Tenant');
       } else if (email == 'technician@smartspace.com' && password == 'Password123!') {
         return _mockLogin('33333333-3333-3333-3333-333333333333', email, 'Alex Technician', 'Technician');
+      } else if ((email == 'inventory@mail.com' || email == 'inventory@smartspace.com') && password == 'Password123!') {
+        return _mockLogin('44444444-4444-4444-4444-444444444444', email, 'Saman Kumara', 'InventoryOfficer');
       }
 
       _errorMessage = 'Could not connect to server. Please check backend host.';

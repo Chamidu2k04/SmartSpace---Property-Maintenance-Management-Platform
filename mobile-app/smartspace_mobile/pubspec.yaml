@@ -15,6 +15,7 @@ dependencies:
 
   # Local Persistence & Networking
   shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.2.2
   http: ^1.2.0
 
   # UI
