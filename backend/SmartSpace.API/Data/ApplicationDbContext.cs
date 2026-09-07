@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSpace.API.Data.Scheduling;
 using SmartSpace.API.Models;
+using SmartSpace.API.Models.Scheduling;
 using SmartSpace.API.Models.Inventory;
 using SmartSpace.API.Models.PropertyManagement;
 using SmartSpace.API.Models.MaintenanceTickets;
@@ -14,6 +16,9 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<TechnicianProfile> TechnicianProfiles => Set<TechnicianProfile>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<Quotation> Quotations => Set<Quotation>();
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<Unit> Units => Set<Unit>();
     public DbSet<Lease> Leases => Set<Lease>();
@@ -30,6 +35,9 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Configure Component 4: Scheduling module entities
+        modelBuilder.ConfigureSchedulingModule();
 
         modelBuilder.Entity<User>(entity =>
         {
