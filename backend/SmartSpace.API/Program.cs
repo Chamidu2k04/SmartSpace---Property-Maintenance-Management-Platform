@@ -19,6 +19,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<SmartSpace.API.Services.Scheduling.ITechnicianService, SmartSpace.API.Services.Scheduling.TechnicianService>();
+builder.Services.AddScoped<SmartSpace.API.Services.Scheduling.IAppointmentService, SmartSpace.API.Services.Scheduling.AppointmentService>();
+builder.Services.AddScoped<SmartSpace.API.Services.Common.IEmailService, SmartSpace.API.Services.Common.EmailService>();
+builder.Services.AddScoped<SmartSpace.API.Services.Scheduling.IQuotationService, SmartSpace.API.Services.Scheduling.QuotationService>();
+
 
 // 3. JWT Authentication Configuration
 var secretKey = builder.Configuration["Jwt:SecretKey"] ?? "SmartSpaceSuperSecretKeyForJWTTokenSigning2026!";
@@ -57,7 +62,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // 5. Swagger with JWT Support

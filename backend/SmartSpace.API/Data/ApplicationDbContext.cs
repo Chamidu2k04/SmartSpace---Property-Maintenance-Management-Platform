@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSpace.API.Data.Scheduling;
 using SmartSpace.API.Models;
+using SmartSpace.API.Models.Scheduling;
 
 namespace SmartSpace.API.Data;
 
@@ -11,10 +13,16 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<TechnicianProfile> TechnicianProfiles => Set<TechnicianProfile>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<Quotation> Quotations => Set<Quotation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Configure Component 4: Scheduling module entities
+        modelBuilder.ConfigureSchedulingModule();
 
         modelBuilder.Entity<User>(entity =>
         {
