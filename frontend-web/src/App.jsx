@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import TechnicianProfile from './pages/TechnicianProfile';
 import Inventory from './pages/Inventory';
+import Scheduling from './pages/Scheduling';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/AdminLayout';
 
@@ -19,6 +21,17 @@ export default function App() {
             <ProtectedRoute>
               <AdminLayout>
                 <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/scheduling"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Scheduling />
               </AdminLayout>
             </ProtectedRoute>
           }
@@ -41,6 +54,17 @@ export default function App() {
             <ProtectedRoute>
               <AdminLayout>
                 <Profile />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/technician-profile"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <TechnicianProfile />
               </AdminLayout>
             </ProtectedRoute>
           }
