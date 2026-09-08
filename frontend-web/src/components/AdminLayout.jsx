@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { Building2, LayoutDashboard, User, LogOut, Shield } from 'lucide-react';
+import { Building2, LayoutDashboard, User, LogOut, Shield, Wrench } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const { user, logout } = useAuthStore();
@@ -15,6 +15,7 @@ export default function AdminLayout({ children }) {
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Maintenance', path: '/maintenance', icon: Wrench },
     { label: 'User Profile', path: '/profile', icon: User },
   ];
 

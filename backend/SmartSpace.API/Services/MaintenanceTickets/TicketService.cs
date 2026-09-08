@@ -65,6 +65,7 @@ public class TicketService : ITicketService
             {
                 Id = t.Id,
                 UnitId = t.UnitId,
+                TenantName = t.Tenant != null ? t.Tenant.FullName : "Deleted User",
                 UnitNumber = t.Unit != null ? t.Unit.UnitNumber : string.Empty,
                 Description = t.Description,
                 UrgencyLevel = t.UrgencyLevel.ToString(),
@@ -90,6 +91,7 @@ public class TicketService : ITicketService
             {
                 Id = t.Id,
                 UnitId = t.UnitId,
+                TenantName = t.Tenant != null ? t.Tenant.FullName : "Deleted User",
                 UnitNumber = t.Unit != null ? t.Unit.UnitNumber : string.Empty,
                 Description = t.Description,
                 UrgencyLevel = t.UrgencyLevel.ToString(),

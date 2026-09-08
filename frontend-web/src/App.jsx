@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import MaintenanceApprovals from './pages/MaintenanceApprovals';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/AdminLayout';
 
@@ -29,6 +30,17 @@ export default function App() {
             <ProtectedRoute>
               <AdminLayout>
                 <Profile />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/maintenance"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <MaintenanceApprovals />
               </AdminLayout>
             </ProtectedRoute>
           }
