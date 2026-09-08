@@ -4,6 +4,7 @@ public class TicketSummaryResponseDto
 {
     public Guid Id { get; set; }
     public Guid UnitId { get; set; }
+    public string TenantName { get; set; } = string.Empty;
     public string UnitNumber { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string UrgencyLevel { get; set; } = string.Empty;
