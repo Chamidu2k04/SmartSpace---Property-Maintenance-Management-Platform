@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
+import 'admin_dashboard.dart';
 import 'login_screen.dart';
 import 'tenant_dashboard.dart';
 import 'technician_dashboard.dart';
@@ -32,7 +33,9 @@ class AuthGateway extends StatelessWidget {
     // Role-based Routing Gateway
     final role = authProvider.user?.role;
 
-    if (role == UserRole.tenant) {
+    if (role == UserRole.admin) {
+      return const AdminDashboard();
+    } else if (role == UserRole.tenant) {
       return const TenantDashboard();
     } else if (role == UserRole.technician) {
       return const TechnicianDashboard();

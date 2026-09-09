@@ -23,7 +23,11 @@ export const useAuthStore = create((set, get) => ({
         throw new Error(data.message || 'Login failed. Please check your credentials.');
       }
 
-      const { token, id, email: userEmail, fullName, role } = data;
+      const { token } = data;
+      const id = data.id || data.user?.id;
+      const userEmail = data.email || data.user?.email || email;
+      const fullName = data.fullName || data.user?.fullName || 'Administrator';
+      const role = data.role || data.user?.role || 'Admin';
       const user = { id, email: userEmail, fullName, role };
 
       localStorage.setItem('smartspace_token', token);
@@ -37,13 +41,13 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  register: async (email, password, fullName, role) => {
+  register: async (email, password, fullName) => {
     set({ isLoading: true, error: null });
     try {
       const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName, role }),
+        body: JSON.stringify({ fullName, email, password }),
       });
 
       const data = await response.json();
@@ -52,7 +56,11 @@ export const useAuthStore = create((set, get) => ({
         throw new Error(data.message || 'Registration failed.');
       }
 
-      const { token, id, email: userEmail, fullName: userFullName, role: userRole } = data;
+      const token = data.token;
+      const id = data.id || data.user?.id;
+      const userEmail = data.email || data.user?.email;
+      const userFullName = data.fullName || data.user?.fullName;
+      const userRole = data.role || data.user?.role;
       const user = { id, email: userEmail, fullName: userFullName, role: userRole };
 
       localStorage.setItem('smartspace_token', token);

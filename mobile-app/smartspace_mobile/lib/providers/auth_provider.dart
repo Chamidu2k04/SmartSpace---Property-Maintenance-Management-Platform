@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
+import '../services/auth_service.dart';
 import '../services/storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
   final SecureStorageService _storageService = SecureStorageService();
 
   UserModel? _user;
@@ -13,16 +13,6 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isCheckingAuth = true;
   String? _errorMessage;
-
-  static String get _baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5030/api/auth';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030/api/auth';
-    } else {
-      return 'http://localhost:5030/api/auth';
-    }
-  }
 
   UserModel? get user => _user;
   String? get token => _token;
@@ -61,43 +51,33 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 4));
+      final data = await _authService.login(email: email, password: password);
 
-      final data = jsonDecode(response.body);
+      _token = data['token'];
+      final userData = data['user'] is Map<String, dynamic> ? data['user'] : data;
+      _user = UserModel.fromJson({
+        'id': userData['id']?.toString() ?? '',
+        'email': userData['email'] ?? '',
+        'fullName': userData['fullName'] ?? '',
+        'role': userData['role'] ?? 'Tenant',
+      });
 
-      if (response.statusCode == 200) {
-        _token = data['token'];
-        _user = UserModel.fromJson({
-          'id': data['id'],
-          'email': data['email'],
-          'fullName': data['fullName'],
-          'role': data['role'],
-        });
+      await _storageService.saveSession(
+        token: _token!,
+        id: _user!.id,
+        email: _user!.email,
+        name: _user!.fullName,
+        role: userData['role']?.toString() ?? 'Tenant',
+      );
 
-        await _storageService.saveSession(
-          token: _token!,
-          id: _user!.id,
-          email: _user!.email,
-          name: _user!.fullName,
-          role: data['role'],
-        );
-
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _errorMessage = data['message'] ?? 'Login failed. Please check credentials.';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
     } catch (e) {
       // Viva / Offline test mode: allow seamless demo login if local dev server isn't active
-      if (email == 'tenant@smartspace.com' && password == 'Password123!') {
+      if (email == 'admin@smartspace.com' && password == 'Password123!') {
+        return _mockLogin('00000000-0000-0000-0000-000000000000', email, 'System Admin', 'Admin');
+      } else if (email == 'tenant@smartspace.com' && password == 'Password123!') {
         return _mockLogin('11111111-1111-1111-1111-111111111111', email, 'John Tenant', 'Tenant');
       } else if (email == 'technician@smartspace.com' && password == 'Password123!') {
         return _mockLogin('33333333-3333-3333-3333-333333333333', email, 'Alex Technician', 'Technician');
@@ -105,7 +85,47 @@ class AuthProvider extends ChangeNotifier {
         return _mockLogin('44444444-4444-4444-4444-444444444444', email, 'Saman Kumara', 'InventoryOfficer');
       }
 
-      _errorMessage = 'Could not connect to server. Please check backend host.';
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> register(String fullName, String email, String password) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final data = await _authService.register(
+        fullName: fullName,
+        email: email,
+        password: password,
+      );
+
+      _token = data['token'];
+      final userData = data['user'] is Map<String, dynamic> ? data['user'] : data;
+      _user = UserModel.fromJson({
+        'id': userData['id']?.toString() ?? '',
+        'email': userData['email'] ?? '',
+        'fullName': userData['fullName'] ?? '',
+        'role': userData['role'] ?? 'Tenant',
+      });
+
+      await _storageService.saveSession(
+        token: _token!,
+        id: _user!.id,
+        email: _user!.email,
+        name: _user!.fullName,
+        role: userData['role']?.toString() ?? 'Tenant',
+      );
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       _isLoading = false;
       notifyListeners();
       return false;
