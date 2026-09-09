@@ -21,6 +21,7 @@ import MaintenanceApprovals from './pages/MaintenanceApprovals';
 import TechnicianProfile from './pages/TechnicianProfile';
 import Inventory from './pages/Inventory';
 import Scheduling from './pages/Scheduling';
+import Properties from './pages/Properties';
 import AdminUserDashboard from './pages/AdminUserDashboard';
 
 export default function App() {
@@ -63,6 +64,17 @@ export default function App() {
             <ProtectedRoute>
               <AdminLayout>
                 <Scheduling />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/properties"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Properties />
               </AdminLayout>
             </ProtectedRoute>
           }

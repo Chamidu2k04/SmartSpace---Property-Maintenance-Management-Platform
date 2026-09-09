@@ -10,7 +10,7 @@ namespace SmartSpace.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")] // Strictly protected by Admin role
+[Authorize(Roles = "Admin,PropertyManager")]
 public class UsersController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -21,14 +21,19 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Returns a list of users. Includes functional search to filter by partial match on Email or FullName.
-    /// Example: GET /api/users?search=john
+    /// Returns a list of users. Supports filtering by search keyword and role.
+    /// Example: GET /api/users?search=john&role=Tenant
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsers([FromQuery] string? search)
+    public async Task<IActionResult> GetUsers([FromQuery] string? search = null, [FromQuery] UserRole? role = null)
     {
         IQueryable<User> query = _context.Users.AsNoTracking();
+
+        if (role.HasValue)
+        {
+            query = query.Where(u => u.Role == role.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -53,9 +58,10 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Update a specific user's system role.
+    /// Update a specific user's system role (Admin only).
     /// Example: PUT /api/users/{id}/role
     /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}/role")]
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
