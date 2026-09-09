@@ -1,55 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'signup_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   static const Color _deepIndigo = Color(0xFF1E3A8A);
+  static const Color _emeraldGreen = Color(0xFF10B981);
   static const Color _offWhite = Color(0xFFFAFAFA);
 
   @override
   void dispose() {
+    _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleSignUp() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final fullName = _fullNameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.login(email, password);
+    final success = await authProvider.register(fullName, email, password);
 
     if (!mounted) return;
 
-    if (!success && authProvider.errorMessage != null) {
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account created! Welcome to SmartSpace.'),
+          backgroundColor: _emeraldGreen,
+        ),
+      );
+      // Pop SignUpScreen off the navigation stack so AuthGateway renders the appropriate dashboard
+      Navigator.of(context).pop();
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.errorMessage!),
+          content: Text(authProvider.errorMessage ?? 'Registration failed.'),
           backgroundColor: Colors.red.shade700,
         ),
       );
-    } else if (success) {
-      // In case LoginScreen was ever pushed explicitly on top of Navigator,
-      // popping or replacing with AuthGateway ensures the user is directed to their dashboard immediately.
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
     }
   }
 
@@ -59,10 +65,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: _offWhite,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: _deepIndigo),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -78,27 +92,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Large Logo / App Header
+                      // Header Icon
                       Center(
                         child: Container(
-                          height: 72,
-                          width: 72,
+                          height: 64,
+                          width: 64,
                           decoration: BoxDecoration(
                             color: _deepIndigo,
                             borderRadius: BorderRadius.circular(16.0),
                           ),
                           child: const Icon(
-                            Icons.apartment_rounded,
-                            size: 40,
+                            Icons.person_add_alt_1_rounded,
+                            size: 34,
                             color: Colors.white,
                           ),
                         ),
                       ),
                       const SizedBox(height: 16.0),
                       const Text(
-                        'SmartSpace',
+                        'Create an Account',
                         style: TextStyle(
-                          fontSize: 26,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: _deepIndigo,
                           letterSpacing: -0.5,
@@ -107,36 +121,53 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 4.0),
                       Text(
-                        'Property & Maintenance Platform',
+                        'Sign up to get started with SmartSpace',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey.shade600,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 32.0),
+                      const SizedBox(height: 24.0),
 
-                      // Email Field with Validation
+                      // Full Name Field
+                      TextFormField(
+                        controller: _fullNameController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                          labelText: 'Full Name',
+                          hintText: 'John Doe',
+                          prefixIcon: const Icon(Icons.person_outline),
+                          filled: true,
+                          fillColor: _offWhite,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'Full name is required';
+                          }
+                          if (val.trim().length < 2) {
+                            return 'Full name must be at least 2 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16.0),
+
+                      // Email Field
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           labelText: 'Email Address',
-                          hintText: 'user@smartspace.com',
-                          prefixIcon: const Icon(Icons.email_outlined, color: _deepIndigo),
+                          hintText: 'john@example.com',
+                          prefixIcon: const Icon(Icons.email_outlined),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: _offWhite,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: _deepIndigo, width: 2),
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         validator: (val) {
@@ -145,20 +176,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                           final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                           if (!emailRegex.hasMatch(val.trim())) {
-                            return 'Please enter a valid email address';
+                            return 'Enter a valid email address';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 16.0),
 
-                      // Password Field with Validation
+                      // Password Field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock_outline, color: _deepIndigo),
+                          hintText: 'Minimum 6 characters',
+                          prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -171,18 +203,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: _offWhite,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: const BorderSide(color: _deepIndigo, width: 2),
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         validator: (val) {
@@ -197,15 +220,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24.0),
 
-                      // Primary Deep Indigo Sign In Button
+                      // Register Button
                       ElevatedButton(
-                        onPressed: authProvider.isLoading ? null : _handleLogin,
+                        onPressed: authProvider.isLoading ? null : _handleSignUp,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _deepIndigo,
+                          backgroundColor: _emeraldGreen,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding: const EdgeInsets.symmetric(vertical: 14.0),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
                           elevation: 0,
                         ),
@@ -214,12 +237,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                                  strokeWidth: 2.0,
                                   color: Colors.white,
                                 ),
                               )
                             : const Text(
-                                'Sign In',
+                                'Register',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -228,22 +251,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16.0),
 
-                      // Switch to Sign Up
+                      // Switch to Login
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'New to SmartSpace?',
+                            'Already have an account?',
                             style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                           ),
                           TextButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const SignUpScreen()),
-                              );
-                            },
+                            onPressed: () => Navigator.of(context).pop(),
                             child: const Text(
-                              'Register',
+                              'Sign In',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -264,4 +283,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

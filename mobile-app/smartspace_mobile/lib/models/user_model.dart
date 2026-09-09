@@ -1,4 +1,5 @@
 enum UserRole {
+  admin,
   tenant,
   propertyManager,
   technician,
@@ -39,6 +40,8 @@ class UserModel {
   static UserRole _parseRole(String? roleStr) {
     final clean = roleStr?.replaceAll(' ', '').toLowerCase();
     switch (clean) {
+      case 'admin':
+        return UserRole.admin;
       case 'propertymanager':
         return UserRole.propertyManager;
       case 'technician':
