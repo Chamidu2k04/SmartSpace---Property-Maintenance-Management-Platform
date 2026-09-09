@@ -13,15 +13,22 @@ export default function AdminLayout({ children }) {
     navigate('/login');
   };
 
-  const navItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Maintenance', path: '/maintenance', icon: Wrench },
+  const isInventoryManager = user?.role === 'InventoryOfficer' || user?.role === 'InventoryManager';
+
+  const navItems = isInventoryManager
+    ? [
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { label: 'Inventory & Suppliers', path: '/inventory', icon: Package },
+        { label: 'User Profile', path: '/profile', icon: User },
+      ]
+    : [
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { label: 'Maintenance', path: '/maintenance', icon: Wrench },
         {
           label: user?.role === 'Technician' ? 'My Assigned Jobs' : 'Scheduling & Quotation',
           path: '/scheduling',
           icon: Calendar,
         },
-        { label: 'Inventory & Suppliers', path: '/inventory', icon: Package },
         {
           label: 'User Profile',
           path: user?.role === 'Technician' ? '/technician-profile' : '/profile',
