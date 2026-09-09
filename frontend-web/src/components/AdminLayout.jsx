@@ -15,6 +15,9 @@ export default function AdminLayout({ children }) {
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    ...(user?.role === 'PropertyManager'
+      ? [{ label: 'Properties & Leases', path: '/properties', icon: Building2 }]
+      : []),
     { label: 'Maintenance', path: '/maintenance', icon: Wrench },
         {
           label: user?.role === 'Technician' ? 'My Assigned Jobs' : 'Scheduling & Quotation',
