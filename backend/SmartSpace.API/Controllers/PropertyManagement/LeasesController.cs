@@ -79,4 +79,39 @@ public class LeasesController : ControllerBase
         var leases = await _leaseService.GetAllLeasesAsync();
         return Ok(leases);
     }
+
+    [HttpGet("{id:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<ActionResult<LeaseResponseDto>> GetLeaseById(Guid id)
+    {
+        var lease = await _leaseService.GetLeaseByIdAsync(id);
+        return lease == null ? NotFound(new { message = $"Lease with ID '{id}' was not found." }) : Ok(lease);
+    }
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<ActionResult<LeaseResponseDto>> UpdateLease(Guid id, [FromBody] UpdateLeaseRequestDto request)
+    {
+        try { return Ok(await _leaseService.UpdateLeaseAsync(id, request)); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    [HttpPatch("{id:guid}/terminate")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<ActionResult<LeaseResponseDto>> TerminateLease(Guid id)
+    {
+        try { return Ok(await _leaseService.TerminateLeaseAsync(id)); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<IActionResult> DeleteLease(Guid id)
+    {
+        try { await _leaseService.DeleteLeaseAsync(id); return NoContent(); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
 }

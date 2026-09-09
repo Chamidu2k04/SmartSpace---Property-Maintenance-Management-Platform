@@ -117,6 +117,71 @@ public class PropertyService : IPropertyService
         }).ToList();
     }
 
+    public async Task<PropertyResponseDto> UpdatePropertyAsync(Guid id, UpdatePropertyRequestDto request)
+    {
+        var property = await _context.Properties.Include(p => p.Units).FirstOrDefaultAsync(p => p.Id == id)
+            ?? throw new KeyNotFoundException($"Property with ID '{id}' was not found.");
+
+        property.Name = request.Name.Trim();
+        property.Address = request.Address.Trim();
+        property.City = request.City.Trim();
+        await _context.SaveChangesAsync();
+        return MapToPropertyResponseDto(property);
+    }
+
+    public async Task DeletePropertyAsync(Guid id)
+    {
+        var property = await _context.Properties
+            .Include(p => p.Units).ThenInclude(u => u.Leases)
+            .FirstOrDefaultAsync(p => p.Id == id)
+            ?? throw new KeyNotFoundException($"Property with ID '{id}' was not found.");
+
+        if (property.Units.Any(u => u.Leases.Count > 0))
+        {
+            throw new InvalidOperationException("A property with lease history cannot be deleted.");
+        }
+
+        var unitIds = property.Units.Select(u => u.Id).ToList();
+        if (await _context.MaintenanceTickets.AnyAsync(t => unitIds.Contains(t.UnitId)))
+        {
+            throw new InvalidOperationException("A property with maintenance history cannot be deleted.");
+        }
+
+        _context.Properties.Remove(property);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<UnitResponseDto> UpdateUnitAsync(Guid id, UpdateUnitRequestDto request)
+    {
+        var unit = await _context.Units.Include(u => u.Property).Include(u => u.Leases).FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException($"Unit with ID '{id}' was not found.");
+
+        if (unit.Leases.Any(l => l.IsActive) && request.Status != UnitStatus.Occupied)
+        {
+            throw new InvalidOperationException("A unit with an active lease must remain Occupied.");
+        }
+
+        unit.UnitNumber = request.UnitNumber.Trim();
+        unit.Floor = request.Floor;
+        unit.Status = request.Status;
+        await _context.SaveChangesAsync();
+        return new UnitResponseDto { Id = unit.Id, PropertyId = unit.PropertyId, UnitNumber = unit.UnitNumber, Floor = unit.Floor, Status = unit.Status.ToString(), PropertyName = unit.Property.Name };
+    }
+
+    public async Task DeleteUnitAsync(Guid id)
+    {
+        var unit = await _context.Units.Include(u => u.Leases).FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException($"Unit with ID '{id}' was not found.");
+
+        if (unit.Leases.Count > 0 || await _context.MaintenanceTickets.AnyAsync(t => t.UnitId == id))
+        {
+            throw new InvalidOperationException("A unit with lease or maintenance history cannot be deleted.");
+        }
+
+        _context.Units.Remove(unit);
+        await _context.SaveChangesAsync();
+    }
+
     private static PropertyResponseDto MapToPropertyResponseDto(Property property)
     {
         return new PropertyResponseDto
