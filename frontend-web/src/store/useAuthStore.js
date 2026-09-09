@@ -2,8 +2,18 @@ import { create } from 'zustand';
 
 const API_URL = 'http://localhost:5030/api/auth';
 
+const getInitialUser = () => {
+  try {
+    const raw = localStorage.getItem('smartspace_user');
+    if (!raw || raw === 'undefined' || raw === 'null') return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
 export const useAuthStore = create((set, get) => ({
-  user: JSON.parse(localStorage.getItem('smartspace_user')) || null,
+  user: getInitialUser(),
   token: localStorage.getItem('smartspace_token') || null,
   isLoading: false,
   error: null,
