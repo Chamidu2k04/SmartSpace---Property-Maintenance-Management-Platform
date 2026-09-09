@@ -7,6 +7,7 @@ import MaintenanceApprovals from './pages/MaintenanceApprovals';
 import TechnicianProfile from './pages/TechnicianProfile';
 import Inventory from './pages/Inventory';
 import Scheduling from './pages/Scheduling';
+import Properties from './pages/Properties';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/AdminLayout';
 
@@ -33,6 +34,17 @@ export default function App() {
             <ProtectedRoute>
               <AdminLayout>
                 <Scheduling />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/properties"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Properties />
               </AdminLayout>
             </ProtectedRoute>
           }
