@@ -7,6 +7,7 @@ import MaintenanceApprovals from './pages/MaintenanceApprovals';
 import TechnicianProfile from './pages/TechnicianProfile';
 import Inventory from './pages/Inventory';
 import Scheduling from './pages/Scheduling';
+import AdminUserDashboard from './pages/AdminUserDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/AdminLayout';
 
@@ -15,6 +16,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Login />} />
         
         <Route
           path="/dashboard"
@@ -76,6 +78,28 @@ export default function App() {
           <ProtectedRoute>
             <AdminLayout>
               <TechnicianProfile />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminUserDashboard />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminUserDashboard />
             </AdminLayout>
           </ProtectedRoute>
         }
