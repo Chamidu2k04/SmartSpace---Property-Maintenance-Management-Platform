@@ -83,4 +83,39 @@ public class PropertiesController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<ActionResult<PropertyResponseDto>> UpdateProperty(Guid id, [FromBody] UpdatePropertyRequestDto request)
+    {
+        try { return Ok(await _propertyService.UpdatePropertyAsync(id, request)); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<IActionResult> DeleteProperty(Guid id)
+    {
+        try { await _propertyService.DeletePropertyAsync(id); return NoContent(); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    [HttpPut("units/{unitId:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<ActionResult<UnitResponseDto>> UpdateUnit(Guid unitId, [FromBody] UpdateUnitRequestDto request)
+    {
+        try { return Ok(await _propertyService.UpdateUnitAsync(unitId, request)); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    [HttpDelete("units/{unitId:guid}")]
+    [Authorize(Roles = nameof(UserRole.PropertyManager))]
+    public async Task<IActionResult> DeleteUnit(Guid unitId)
+    {
+        try { await _propertyService.DeleteUnitAsync(unitId); return NoContent(); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
 }
