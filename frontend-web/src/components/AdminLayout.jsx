@@ -17,7 +17,7 @@ export default function AdminLayout({ children }) {
 
   let navItems = [];
   if (user?.role === 'Admin') {
-    // Admin strictly sees Dashboard, User Management, and User Profile
+    // Admin sees Dashboard, User Management, and User Profile
     navItems = [
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       { label: 'User Management', path: '/admin/users', icon: Users },
@@ -30,8 +30,12 @@ export default function AdminLayout({ children }) {
       { label: 'User Profile', path: '/profile', icon: User },
     ];
   } else {
+    // PropertyManager, Technician, and regular roles
     navItems = [
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+      ...(user?.role === 'PropertyManager'
+        ? [{ label: 'Properties & Leases', path: '/properties', icon: Building2 }]
+        : []),
       { label: 'Maintenance', path: '/maintenance', icon: Wrench },
       {
         label: user?.role === 'Technician' ? 'My Assigned Jobs' : 'Scheduling & Quotation',
@@ -62,7 +66,7 @@ export default function AdminLayout({ children }) {
             </div>
           </div>
 
-          {/* Navigation Links (Scrollable if viewport is small) */}
+          {/* Navigation Links */}
           <nav className="p-4 space-y-1 overflow-y-auto flex-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -85,7 +89,7 @@ export default function AdminLayout({ children }) {
           </nav>
         </div>
 
-        {/* User Info & Logout Button (Always docked at bottom of sidebar) */}
+        {/* User Info & Logout Button */}
         <div className="p-4 border-t border-blue-900/50 bg-blue-950/40 shrink-0">
           <div className="flex items-center gap-3 mb-4 px-2">
             <div className="w-9 h-9 rounded-full bg-[#10B981] flex items-center justify-center text-white font-bold text-sm shrink-0">
@@ -113,7 +117,7 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* Light Gray Main Content Area with independent scroll */}
+      {/* Main Content Area */}
       <main className="flex-1 h-full p-8 overflow-y-auto bg-[#F3F4F6]">
         <div className="max-w-6xl mx-auto pb-12">
           {children}
