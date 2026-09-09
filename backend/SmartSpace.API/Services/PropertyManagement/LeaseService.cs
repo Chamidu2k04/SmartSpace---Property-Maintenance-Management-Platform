@@ -114,6 +114,50 @@ public class LeaseService : ILeaseService
         return leases.Select(MapToLeaseResponseDto).ToList();
     }
 
+    public async Task<LeaseResponseDto?> GetLeaseByIdAsync(Guid id)
+    {
+        var lease = await LeaseQuery().AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
+        return lease == null ? null : MapToLeaseResponseDto(lease);
+    }
+
+    public async Task<LeaseResponseDto> UpdateLeaseAsync(Guid id, UpdateLeaseRequestDto request)
+    {
+        if (request.EndDate <= request.StartDate) throw new InvalidOperationException("End date must be after start date.");
+        var lease = await LeaseQuery().FirstOrDefaultAsync(l => l.Id == id)
+            ?? throw new KeyNotFoundException($"Lease with ID '{id}' was not found.");
+
+        lease.StartDate = request.StartDate;
+        lease.EndDate = request.EndDate;
+        lease.MonthlyRent = request.MonthlyRent;
+        await _context.SaveChangesAsync();
+        return MapToLeaseResponseDto(lease);
+    }
+
+    public async Task<LeaseResponseDto> TerminateLeaseAsync(Guid id)
+    {
+        var lease = await LeaseQuery().FirstOrDefaultAsync(l => l.Id == id)
+            ?? throw new KeyNotFoundException($"Lease with ID '{id}' was not found.");
+        if (!lease.IsActive) throw new InvalidOperationException("This lease is already inactive.");
+
+        lease.IsActive = false;
+        lease.Unit.Status = UnitStatus.Vacant;
+        await _context.SaveChangesAsync();
+        return MapToLeaseResponseDto(lease);
+    }
+
+    public async Task DeleteLeaseAsync(Guid id)
+    {
+        var lease = await _context.Leases.Include(l => l.Unit).FirstOrDefaultAsync(l => l.Id == id)
+            ?? throw new KeyNotFoundException($"Lease with ID '{id}' was not found.");
+        if (lease.IsActive) throw new InvalidOperationException("Terminate an active lease before deleting it.");
+        _context.Leases.Remove(lease);
+        await _context.SaveChangesAsync();
+    }
+
+    private IQueryable<Lease> LeaseQuery() => _context.Leases
+        .Include(l => l.Unit).ThenInclude(u => u.Property)
+        .Include(l => l.Tenant);
+
     private static LeaseResponseDto MapToLeaseResponseDto(Lease lease)
     {
         return new LeaseResponseDto
