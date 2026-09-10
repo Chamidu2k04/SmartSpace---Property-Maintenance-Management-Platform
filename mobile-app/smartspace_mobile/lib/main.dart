@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/inventory_provider.dart';
+import 'providers/lease_provider.dart';
 import 'screens/auth_gateway.dart';
 
 void main() {
@@ -18,6 +19,7 @@ class SmartSpaceApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
+        ChangeNotifierProvider(create: (_) => LeaseProvider()),
       ],
       child: MaterialApp(
         title: 'SmartSpace Mobile',
