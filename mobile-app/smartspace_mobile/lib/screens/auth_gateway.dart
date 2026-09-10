@@ -6,6 +6,7 @@ import 'admin_dashboard.dart';
 import 'login_screen.dart';
 import 'tenant_dashboard.dart';
 import 'technician_dashboard.dart';
+import 'property_manager_dashboard.dart';
 import 'parts_catalog_screen.dart';
 
 class AuthGateway extends StatelessWidget {
@@ -37,6 +38,8 @@ class AuthGateway extends StatelessWidget {
       return const AdminDashboard();
     } else if (role == UserRole.tenant) {
       return const TenantDashboard();
+    } else if (role == UserRole.propertyManager) {
+      return const PropertyManagerDashboard();
     } else if (role == UserRole.technician) {
       return const TechnicianDashboard();
     } else if (role == UserRole.inventoryOfficer) {
