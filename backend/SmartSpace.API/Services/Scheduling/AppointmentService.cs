@@ -77,7 +77,7 @@ public class AppointmentService : IAppointmentService
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
 
-        return MapToResponseDto(appointment);
+        return (await BuildAppointmentResponseQuery().FirstOrDefaultAsync(a => a.Id == appointment.Id))!;
     }
 
     /// <summary>
@@ -85,16 +85,7 @@ public class AppointmentService : IAppointmentService
     /// </summary>
     public async Task<AppointmentResponseDto?> GetAppointmentByIdAsync(Guid id)
     {
-        var appointment = await _context.Appointments
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (appointment == null)
-        {
-            return null;
-        }
-
-        return MapToResponseDto(appointment);
+        return await BuildAppointmentResponseQuery().FirstOrDefaultAsync(a => a.Id == id);
     }
 
     /// <summary>
@@ -102,11 +93,7 @@ public class AppointmentService : IAppointmentService
     /// </summary>
     public async Task<IEnumerable<AppointmentResponseDto>> GetAllAppointmentsAsync()
     {
-        var appointments = await _context.Appointments
-            .AsNoTracking()
-            .ToListAsync();
-
-        return appointments.Select(MapToResponseDto).ToList();
+        return await BuildAppointmentResponseQuery().ToListAsync();
     }
 
     /// <summary>
@@ -114,12 +101,9 @@ public class AppointmentService : IAppointmentService
     /// </summary>
     public async Task<IEnumerable<AppointmentResponseDto>> GetAppointmentsByTechnicianIdAsync(Guid technicianId)
     {
-        var appointments = await _context.Appointments
-            .AsNoTracking()
+        return await BuildAppointmentResponseQuery()
             .Where(a => a.TechnicianId == technicianId)
             .ToListAsync();
-
-        return appointments.Select(MapToResponseDto).ToList();
     }
 
     /// <summary>
@@ -195,7 +179,7 @@ public class AppointmentService : IAppointmentService
         _context.Appointments.Update(appointment);
         await _context.SaveChangesAsync();
 
-        return MapToResponseDto(appointment);
+        return await BuildAppointmentResponseQuery().FirstOrDefaultAsync(a => a.Id == id);
     }
 
     /// <summary>
@@ -218,20 +202,27 @@ public class AppointmentService : IAppointmentService
         return true;
     }
 
-    /// <summary>
-    /// Explicit mapping helper converting Appointment Entity directly into AppointmentResponseDto.
-    /// </summary>
-    private static AppointmentResponseDto MapToResponseDto(Appointment appointment)
+    private IQueryable<AppointmentResponseDto> BuildAppointmentResponseQuery()
     {
-        return new AppointmentResponseDto
-        {
-            Id = appointment.Id,
-            TicketId = appointment.TicketId,
-            TechnicianId = appointment.TechnicianId,
-            ScheduledDate = appointment.ScheduledDate,
-            StartTime = appointment.StartTime,
-            EndTime = appointment.EndTime,
-            Status = appointment.Status
-        };
+        return from a in _context.Appointments.AsNoTracking()
+               join t in _context.MaintenanceTickets.AsNoTracking() on a.TicketId equals t.Id into ticketGroup
+               from ticket in ticketGroup.DefaultIfEmpty()
+               join u in _context.Units.AsNoTracking() on ticket.UnitId equals u.Id into unitGroup
+               from unit in unitGroup.DefaultIfEmpty()
+               join p in _context.Properties.AsNoTracking() on unit.PropertyId equals p.Id into propertyGroup
+               from property in propertyGroup.DefaultIfEmpty()
+               select new AppointmentResponseDto
+               {
+                   Id = a.Id,
+                   TicketId = a.TicketId,
+                   TechnicianId = a.TechnicianId,
+                   ScheduledDate = a.ScheduledDate,
+                   StartTime = a.StartTime,
+                   EndTime = a.EndTime,
+                   Status = a.Status,
+                   PropertyName = property != null ? property.Name : "SmartSpace Property",
+                   UnitNumber = unit != null ? unit.UnitNumber : "N/A",
+                   Floor = unit != null ? unit.Floor : 1
+               };
     }
 }

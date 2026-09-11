@@ -30,18 +30,22 @@ export default function AdminLayout({ children }) {
       { label: 'User Profile', path: '/profile', icon: User },
     ];
   } else {
-    // PropertyManager, Technician, and regular roles
+    // PropertyManager, Technician, Tenant, and regular roles
     navItems = [
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       ...(user?.role === 'PropertyManager'
         ? [{ label: 'Properties & Leases', path: '/properties', icon: Building2 }]
         : []),
       { label: 'Maintenance', path: '/maintenance', icon: Wrench },
-      {
-        label: user?.role === 'Technician' ? 'My Assigned Jobs' : 'Scheduling & Quotation',
-        path: '/scheduling',
-        icon: Calendar,
-      },
+      ...((user?.role === 'PropertyManager' || user?.role === 'Technician')
+        ? [
+            {
+              label: user?.role === 'Technician' ? 'My Assigned Jobs' : 'Scheduling & Quotation',
+              path: '/scheduling',
+              icon: Calendar,
+            },
+          ]
+        : []),
       {
         label: 'User Profile',
         path: user?.role === 'Technician' ? '/technician-profile' : '/profile',
