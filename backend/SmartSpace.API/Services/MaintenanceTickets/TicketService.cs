@@ -12,12 +12,18 @@ public class TicketService : ITicketService
     private readonly ApplicationDbContext _db;
     private readonly IFileStorageService _fileStorage;
     private readonly ILogger<TicketService> _logger;
+    private readonly IEmailService _emailService;
 
-    public TicketService(ApplicationDbContext db, IFileStorageService fileStorage, ILogger<TicketService> logger)
+    public TicketService(
+        ApplicationDbContext db,
+        IFileStorageService fileStorage,
+        ILogger<TicketService> logger,
+        IEmailService emailService)
     {
         _db = db;
         _fileStorage = fileStorage;
         _logger = logger;
+        _emailService = emailService;
     }
 
     public async Task<TicketDetailResponseDto> CreateTicketAsync(Guid tenantId, TicketCreationRequestDto dto)
@@ -123,13 +129,47 @@ public class TicketService : ITicketService
 
     public async Task<bool> UpdateTicketStatusAsync(Guid ticketId, TicketStatus newStatus)
     {
-        var ticket = await _db.MaintenanceTickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+        // Eagerly load Tenant so we can access their email for notifications
+        var ticket = await _db.MaintenanceTickets
+            .Include(t => t.Tenant)
+            .FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+
         if (ticket == null) return false;
+
+        var previousStatus = ticket.Status;
 
         ticket.Status = newStatus;
         ticket.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        // Send resolution email only when transitioning INTO Completed for the first time
+        if (newStatus == TicketStatus.Completed && previousStatus != TicketStatus.Completed)
+        {
+            try
+            {
+                var tenantEmail = ticket.Tenant?.Email ?? string.Empty;
+                var tenantName  = ticket.Tenant?.FullName ?? "Tenant";
+
+                await _emailService.SendTicketResolvedEmailAsync(
+                    tenantEmail,
+                    tenantName,
+                    ticket.Id.ToString(),
+                    ticket.Description);
+
+                _logger.LogInformation(
+                    "Ticket-resolved email triggered for Ticket {TicketId} (Tenant: {TenantEmail}).",
+                    ticketId, tenantEmail);
+            }
+            catch (Exception ex)
+            {
+                // Email failure must NEVER roll back the status update
+                _logger.LogError(ex,
+                    "Non-critical: ticket-resolved email failed for Ticket {TicketId}. Status update was still saved.",
+                    ticketId);
+            }
+        }
+
         return true;
     }
 

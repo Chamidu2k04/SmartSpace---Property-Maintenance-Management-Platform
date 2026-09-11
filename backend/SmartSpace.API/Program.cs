@@ -36,6 +36,9 @@ builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.ITicketSer
     SmartSpace.API.Services.MaintenanceTickets.TicketService>();
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IFileStorageService,
     SmartSpace.API.Services.MaintenanceTickets.LocalFileStorageService>();
+// Email notification service for resolved ticket alerts (Member 2 — scoped to MaintenanceTickets)
+builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IEmailService,
+    SmartSpace.API.Services.MaintenanceTickets.EmailService>();
 
 // 3. JWT Authentication Configuration
 var secretKey = builder.Configuration["Jwt:SecretKey"] ?? "SmartSpaceSuperSecretKeyForJWTTokenSigning2026!";
