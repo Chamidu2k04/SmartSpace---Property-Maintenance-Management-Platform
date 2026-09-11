@@ -53,6 +53,11 @@ export default function MaintenanceApprovals() {
     );
   };
 
+  /** Optimistic delete: remove ticket from local list without refetching */
+  const handleTicketDeleted = (ticketId) => {
+    setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+  };
+
   const handleFilterChange = (filterKey) => {
     setActiveFilter(filterKey);
   };
@@ -148,7 +153,11 @@ export default function MaintenanceApprovals() {
       ) : error ? (
         <ErrorState message={error} onRetry={handleRefresh} />
       ) : (
-        <TicketsTable tickets={tickets} onTicketUpdated={handleTicketUpdated} />
+        <TicketsTable
+          tickets={tickets}
+          onTicketUpdated={handleTicketUpdated}
+          onTicketDeleted={handleTicketDeleted}
+        />
       )}
     </div>
   );

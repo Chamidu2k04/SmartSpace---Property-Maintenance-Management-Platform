@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import UrgencyBadge from './UrgencyBadge';
-import { updateTicketStatus } from '../services/ticketService';
-import { ChevronDown, Loader2, CheckCircle2, AlertTriangle, Image as ImageIcon, X } from 'lucide-react';
+import { updateTicketStatus, deleteTicket } from '../services/ticketService';
+import { ChevronDown, Loader2, CheckCircle2, AlertTriangle, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 
 /** Backend stores status as string names — these are the valid values */
 const STATUS_OPTIONS = [
@@ -31,8 +31,10 @@ const STATUS_INT_TO_NAME = {
   4: 'Completed',
 };
 
-export default function TicketsTable({ tickets, onTicketUpdated }) {
+export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted }) {
   const [updatingId, setUpdatingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // { id, unitNumber }
   const [toast, setToast] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -57,6 +59,26 @@ export default function TicketsTable({ tickets, onTicketUpdated }) {
       showToast('error', err.message || 'Failed to update status.');
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteClick = (ticket) => {
+    setConfirmDelete({ id: ticket.id, unitNumber: ticket.unitNumber });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!confirmDelete) return;
+    const { id, unitNumber } = confirmDelete;
+    setConfirmDelete(null);
+    setDeletingId(id);
+    try {
+      await deleteTicket(id);
+      onTicketDeleted(id);
+      showToast('success', `Ticket for Unit ${unitNumber || ''} deleted successfully.`);
+    } catch (err) {
+      showToast('error', err.message || 'Failed to delete ticket.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -92,6 +114,48 @@ export default function TicketsTable({ tickets, onTicketUpdated }) {
             <AlertTriangle className="w-5 h-5 shrink-0" />
           )}
           {toast.message}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setConfirmDelete(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-sm p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-[#EF4444]/10 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5 text-[#EF4444]" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 m-0">Delete Ticket</h4>
+                <p className="text-xs text-gray-500 m-0 mt-0.5">
+                  Unit {confirmDelete.unitNumber || '—'}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-5">
+              Are you sure you want to delete this maintenance ticket? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-[#EF4444] text-white text-sm font-medium hover:bg-red-600 transition-all focus:outline-none focus:ring-2 focus:ring-[#EF4444]/30"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -155,6 +219,7 @@ export default function TicketsTable({ tickets, onTicketUpdated }) {
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted Date</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[180px]">Update Status</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -263,6 +328,23 @@ export default function TicketsTable({ tickets, onTicketUpdated }) {
                         </div>
                       )}
                     </div>
+                  </td>
+
+                  {/* Delete Action */}
+                  <td className="px-5 py-4">
+                    {deletingId === ticket.id ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-[#EF4444]" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleDeleteClick(ticket)}
+                        title="Delete ticket"
+                        className="p-2 rounded-lg text-[#EF4444] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 transition-all focus:outline-none focus:ring-2 focus:ring-[#EF4444]/30"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
