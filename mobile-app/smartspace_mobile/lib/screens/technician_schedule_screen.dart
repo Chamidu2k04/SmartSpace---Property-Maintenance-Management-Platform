@@ -729,13 +729,15 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
         matchesDate = apt.scheduledDate.contains(dateStr);
       }
 
-      // 4. Text Search Filter (Ticket ID & Date)
+      // 4. Text Search Filter (Property Name, Unit Number & Date)
       bool matchesSearch = true;
       if (_searchQuery.trim().isNotEmpty) {
         final query = _searchQuery.trim().toLowerCase();
         final matchesTicketId = apt.ticketId.toLowerCase().contains(query);
+        final matchesProperty = apt.propertyName.toLowerCase().contains(query);
+        final matchesUnit = apt.unitNumber.toLowerCase().contains(query);
         final matchesScheduledDate = apt.scheduledDate.toLowerCase().contains(query);
-        matchesSearch = matchesTicketId || matchesScheduledDate;
+        matchesSearch = matchesTicketId || matchesProperty || matchesUnit || matchesScheduledDate;
       }
 
       return matchesStatus && matchesDate && matchesSearch;
@@ -816,7 +818,7 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
                       setState(() => _searchQuery = val);
                     },
                     decoration: InputDecoration(
-                      hintText: 'Search by Ticket ID or Date (YYYY-MM-DD)...',
+                      hintText: 'Search by Property, Unit, Date...',
                       hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                       prefixIcon: const Icon(Icons.search, size: 20, color: _deepIndigo),
                       suffixIcon: _searchQuery.isNotEmpty
@@ -960,7 +962,6 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
     } catch (_) {}
 
     final techName = techProfile?.fullName ?? currentUserName ?? 'Assigned Technician';
-    final specialty = techProfile?.tradeSpecialty ?? 'Electrician';
     final isUpdating = _updatingAppointmentId == appointment.id;
 
     return Card(
@@ -976,30 +977,52 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row 1: Ticket ID Reference
+            // Row 1: Property Name & Unit / Floor Details
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.confirmation_number, size: 18, color: _deepIndigo),
+                const Icon(Icons.business, size: 20, color: _deepIndigo),
                 const SizedBox(width: 8),
-                const Text(
-                  'TICKET ID:',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(width: 6),
                 Expanded(
-                  child: Text(
-                    appointment.ticketId,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: _deepIndigo,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        appointment.propertyName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: _deepIndigo,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.home_outlined, size: 14, color: Colors.grey.shade600),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Unit ${appointment.unitNumber}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Icon(Icons.layers_outlined, size: 14, color: Colors.grey.shade600),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Floor ${appointment.floor}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -1009,7 +1032,7 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
               child: Divider(height: 1),
             ),
 
-            // Row 2: Assigned Technician & Trade Specialty
+            // Row 2: Assigned Technician
             Row(
               children: [
                 Expanded(
@@ -1044,44 +1067,6 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'TRADE SPECIALTY',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.build, size: 12, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(
-                            specialty,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),

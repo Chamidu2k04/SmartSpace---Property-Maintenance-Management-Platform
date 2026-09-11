@@ -110,6 +110,9 @@ class Appointment {
   final String startTime; // Format: HH:mm:ss
   final String endTime; // Format: HH:mm:ss
   final String status; // Scheduled | InProgress | Completed | Cancelled
+  final String propertyName;
+  final String unitNumber;
+  final int floor;
 
   Appointment({
     required this.id,
@@ -119,6 +122,9 @@ class Appointment {
     required this.startTime,
     required this.endTime,
     required this.status,
+    this.propertyName = 'SmartSpace Property',
+    this.unitNumber = 'N/A',
+    this.floor = 1,
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -130,7 +136,16 @@ class Appointment {
       startTime: json['startTime']?.toString() ?? '',
       endTime: json['endTime']?.toString() ?? '',
       status: AppointmentStatus.normalize(json['status']?.toString()),
+      propertyName: json['propertyName']?.toString() ?? json['PropertyName']?.toString() ?? 'SmartSpace Property',
+      unitNumber: json['unitNumber']?.toString() ?? json['UnitNumber']?.toString() ?? 'N/A',
+      floor: _parseInt(json['floor'] ?? json['Floor']),
     );
+  }
+
+  static int _parseInt(dynamic val) {
+    if (val == null) return 1;
+    if (val is num) return val.toInt();
+    return int.tryParse(val.toString()) ?? 1;
   }
 
   Map<String, dynamic> toJson() {
@@ -142,6 +157,9 @@ class Appointment {
       'startTime': startTime,
       'endTime': endTime,
       'status': status,
+      'propertyName': propertyName,
+      'unitNumber': unitNumber,
+      'floor': floor,
     };
   }
 
@@ -153,6 +171,9 @@ class Appointment {
     String? startTime,
     String? endTime,
     String? status,
+    String? propertyName,
+    String? unitNumber,
+    int? floor,
   }) {
     return Appointment(
       id: id ?? this.id,
@@ -162,6 +183,9 @@ class Appointment {
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       status: status ?? this.status,
+      propertyName: propertyName ?? this.propertyName,
+      unitNumber: unitNumber ?? this.unitNumber,
+      floor: floor ?? this.floor,
     );
   }
 }
