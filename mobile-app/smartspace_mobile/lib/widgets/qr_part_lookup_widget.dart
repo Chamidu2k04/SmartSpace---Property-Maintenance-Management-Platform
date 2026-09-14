@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/inventory_item.dart';
 import '../providers/inventory_provider.dart';
@@ -349,9 +350,9 @@ class _QrPartLookupWidgetState extends State<QrPartLookupWidget> {
         ),
         const SizedBox(height: 16),
 
-        // Part ID Reference
+        // Part ID Reference with Copy Action
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(8),
@@ -366,6 +367,22 @@ class _QrPartLookupWidgetState extends State<QrPartLookupWidget> {
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
                   overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.copy, size: 16, color: Color(0xFF1E3A8A)),
+                tooltip: 'Copy Part ID',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: item.id));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('ID Copied to Clipboard'),
+                      duration: Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
               ),
             ],
           ),

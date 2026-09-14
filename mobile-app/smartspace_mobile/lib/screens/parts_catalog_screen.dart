@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/inventory_item.dart';
 import '../models/supplier_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/inventory_provider.dart';
 import '../widgets/qr_part_lookup_widget.dart';
+import './standalone_qr_scanner_screen.dart';
 
 class PartsCatalogScreen extends StatefulWidget {
   const PartsCatalogScreen({super.key});
@@ -694,61 +696,6 @@ class _PartsCatalogScreenState extends State<PartsCatalogScreen> {
     );
   }
 
-  void _showManualLookupDialog() {
-    final textController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.qr_code_scanner, color: _primaryNavy),
-            SizedBox(width: 8),
-            Text('Scan / Lookup Part QR', style: TextStyle(fontSize: 18)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Enter a Part UUID to simulate a scanned QR code payload:',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: textController,
-              decoration: InputDecoration(
-                hintText: 'e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                hintStyle: TextStyle(fontSize: 12, color: Colors.grey.shade400),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _primaryNavy,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              final id = textController.text.trim();
-              Navigator.of(dialogCtx).pop();
-              showQrPartLookupBottomSheet(context, id);
-            },
-            child: const Text('Look Up'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -764,9 +711,21 @@ class _PartsCatalogScreenState extends State<PartsCatalogScreen> {
         actions: [
           if (_currentTabIndex == 0)
             IconButton(
-              icon: const Icon(Icons.qr_code_scanner_outlined),
-              tooltip: 'Scan Part QR',
-              onPressed: _showManualLookupDialog,
+              icon: const Icon(Icons.qr_code_scanner),
+              tooltip: 'Scan / Upload Part QR',
+              onPressed: () async {
+                final scannedId = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StandaloneQrScannerScreen(),
+                  ),
+                );
+                if (scannedId != null && scannedId.trim().isNotEmpty) {
+                  if (context.mounted) {
+                    showQrPartLookupBottomSheet(context, scannedId.trim());
+                  }
+                }
+              },
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -1236,7 +1195,48 @@ class _PartsCatalogScreenState extends State<PartsCatalogScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              // Part ID Reference with Copy Action
+              Container(
+                margin: const EdgeInsets.only(top: 8, bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.tag, size: 14, color: Colors.grey.shade600),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'ID: ${item.id}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontFamily: 'monospace',
+                          color: Colors.grey.shade700,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 15, color: _primaryNavy),
+                      tooltip: 'Copy Part ID',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: item.id));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('ID Copied to Clipboard'),
+                            duration: Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
 
               // Stock Quantity & Unit Cost Footer
               Row(
