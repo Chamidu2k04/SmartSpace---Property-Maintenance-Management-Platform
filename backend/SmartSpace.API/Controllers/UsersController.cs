@@ -77,11 +77,11 @@ public class UsersController : ControllerBase
             return BadRequest(new { message = "You cannot modify your own administrator role." });
         }
 
-        if (!Enum.TryParse<UserRole>(dto.NewRole, true, out var parsedRole))
+        if (!Enum.TryParse<UserRole>(dto.NewRole, true, out var parsedRole) || parsedRole == UserRole.Technician)
         {
             return BadRequest(new
             {
-                message = $"Invalid role '{dto.NewRole}'. Allowed roles: Admin, Tenant, PropertyManager, InventoryOfficer, Technician."
+                message = $"Invalid role '{dto.NewRole}'. Allowed roles: Admin, Tenant, PropertyManager, InventoryOfficer. Technician accounts are managed by Property Managers."
             });
         }
 
@@ -89,6 +89,14 @@ public class UsersController : ControllerBase
         if (user == null)
         {
             return NotFound(new { message = $"User with ID '{id}' was not found." });
+        }
+
+        if (user.Role == UserRole.Technician)
+        {
+            return BadRequest(new
+            {
+                message = "Technician accounts are managed by Property Managers and cannot be modified here."
+            });
         }
 
         user.Role = parsedRole;

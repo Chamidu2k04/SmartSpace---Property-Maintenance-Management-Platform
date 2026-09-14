@@ -8,7 +8,6 @@ const SYSTEM_ROLES = [
   'Tenant',
   'PropertyManager',
   'InventoryOfficer',
-  'Technician',
 ];
 
 export default function AdminUserDashboard() {
@@ -48,6 +47,10 @@ export default function AdminUserDashboard() {
   };
 
   const handleRoleChange = async (userId, newRole) => {
+    if (newRole === 'Technician') {
+      showAlert('error', 'Technician accounts are managed by Property Managers.');
+      return;
+    }
     setUpdatingUserId(userId);
     try {
       const updated = await userService.updateUserRole(userId, newRole);
@@ -237,6 +240,14 @@ export default function AdminUserDashboard() {
                           >
                             <Lock className="w-3.5 h-3.5 text-gray-400" />
                             Locked (Self)
+                          </span>
+                        ) : user.role === 'Technician' ? (
+                          <span
+                            title="Technician accounts are managed by Property Managers"
+                            className="inline-flex items-center gap-1 text-xs text-amber-700 font-medium italic bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-lg cursor-not-allowed"
+                          >
+                            <Lock className="w-3.5 h-3.5 text-amber-600" />
+                            Managed by PM
                           </span>
                         ) : (
                           <select
