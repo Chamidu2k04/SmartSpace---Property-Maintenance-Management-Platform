@@ -41,4 +41,19 @@ public class AppointmentResponseDto
     /// Current lifecycle status of the appointment.
     /// </summary>
     public AppointmentStatus Status { get; set; }
+
+    /// <summary>
+    /// Name of the property associated with the maintenance appointment.
+    /// </summary>
+    public string PropertyName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Unit number associated with the maintenance appointment.
+    /// </summary>
+    public string UnitNumber { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Floor number associated with the maintenance unit.
+    /// </summary>
+    public int Floor { get; set; }
 }

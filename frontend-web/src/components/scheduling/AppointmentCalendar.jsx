@@ -15,6 +15,9 @@ import {
   Search,
   ShieldAlert,
   ShieldCheck,
+  Building,
+  Home,
+  Layers,
 } from 'lucide-react';
 import {
   technicianService,
@@ -22,6 +25,7 @@ import {
   APPOINTMENT_STATUS_MAP,
   TRADE_SPECIALTY_MAP,
 } from '../../services/technicianService';
+import { propertyService } from '../../services/propertyService';
 import { useAuthStore } from '../../store/useAuthStore';
 import AppointmentModal from './AppointmentModal';
 
@@ -32,6 +36,7 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
   const [appointments, setAppointments] = useState([]);
   const [technicians, setTechnicians] = useState([]);
   const [tickets, setTickets] = useState([]);
+  const [properties, setProperties] = useState([]);
   const [preselectedTicketId, setPreselectedTicketId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -59,14 +64,16 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [appRes, techRes, tickRes] = await Promise.all([
+      const [appRes, techRes, tickRes, propRes] = await Promise.all([
         technicianService.getAppointments(),
         technicianService.getTechnicians(),
         technicianService.getTickets().catch(() => []),
+        propertyService.getProperties().catch(() => []),
       ]);
       setAppointments(Array.isArray(appRes) ? appRes : []);
       setTechnicians(Array.isArray(techRes) ? techRes : []);
       setTickets(Array.isArray(tickRes) ? tickRes : []);
+      setProperties(Array.isArray(propRes) ? propRes : []);
     } catch (err) {
       setError(err.message || 'Failed to load maintenance appointments.');
     } finally {
@@ -159,6 +166,33 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
     return map;
   }, [technicians]);
 
+  // Ticket lookup map
+  const ticketMap = useMemo(() => {
+    const map = {};
+    (tickets || []).forEach((t) => {
+      if (t.id) map[t.id.toLowerCase()] = t;
+    });
+    return map;
+  }, [tickets]);
+
+  // Unit and property lookup map
+  const { unitByIdMap, unitByNumberMap } = useMemo(() => {
+    const byId = {};
+    const byNum = {};
+    (properties || []).forEach((prop) => {
+      (prop.units || []).forEach((u) => {
+        const info = {
+          propertyName: u.propertyName || prop.name || 'SmartSpace Property',
+          unitNumber: u.unitNumber,
+          floor: u.floor !== undefined && u.floor !== null ? u.floor : 1,
+        };
+        if (u.id) byId[u.id.toLowerCase()] = info;
+        if (u.unitNumber) byNum[u.unitNumber.toString().toLowerCase()] = info;
+      });
+    });
+    return { unitByIdMap: byId, unitByNumberMap: byNum };
+  }, [properties]);
+
   // Current logged in technician profile (if any)
   const currentTechProfile = useMemo(() => {
     if (!user) return null;
@@ -191,16 +225,27 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
 
       const matchesDate = !dateFilter || app.scheduledDate === dateFilter;
 
+      const ticket = ticketMap[(app.ticketId || '').toLowerCase()];
+      const unitInfo =
+        (ticket?.unitId && unitByIdMap[ticket.unitId.toLowerCase()]) ||
+        (ticket?.unitNumber && unitByNumberMap[ticket.unitNumber.toString().toLowerCase()]) ||
+        null;
+      const propName = unitInfo?.propertyName || ticket?.propertyName || 'SmartSpace Property';
+      const unitNum = ticket?.unitNumber || unitInfo?.unitNumber || '';
+
       const tech = techMap[app.technicianId];
       const techName = tech ? tech.fullName || tech.name : '';
+      const query = searchQuery.toLowerCase();
       const matchesSearch =
         !searchQuery ||
-        app.ticketId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        techName.toLowerCase().includes(searchQuery.toLowerCase());
+        app.ticketId.toLowerCase().includes(query) ||
+        techName.toLowerCase().includes(query) ||
+        propName.toLowerCase().includes(query) ||
+        unitNum.toLowerCase().includes(query);
 
       return matchesStatus && matchesDate && matchesSearch;
     });
-  }, [appointments, statusFilter, dateFilter, searchQuery, techMap, isTechnician, user, currentTechProfile]);
+  }, [appointments, statusFilter, dateFilter, searchQuery, techMap, ticketMap, unitByIdMap, unitByNumberMap, isTechnician, user, currentTechProfile]);
 
   const getStatusBadge = (status) => {
     const name = APPOINTMENT_STATUS_MAP[status] || status;
@@ -338,7 +383,7 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by ticket..."
+            placeholder="Search by property, unit, technician..."
             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
           />
         </div>
@@ -416,9 +461,10 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/70 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  <th className="py-3.5 px-5">Ticket ID</th>
+                  <th className="py-3.5 px-5">Property Name</th>
+                  <th className="py-3.5 px-5">Unit Number</th>
+                  <th className="py-3.5 px-5">Floor</th>
                   <th className="py-3.5 px-5">Assigned Technician</th>
-                  <th className="py-3.5 px-5">Trade Specialty</th>
                   <th className="py-3.5 px-5">Scheduled Window</th>
                   <th className="py-3.5 px-5">Status</th>
                   <th className="py-3.5 px-5 text-right">Actions</th>
@@ -428,13 +474,27 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
                 {filteredAppointments.map((app) => {
                   const tech = techMap[app.technicianId];
                   const techName = tech ? tech.fullName || tech.name : (user?.fullName || 'Assigned Technician');
-                  const techSpecialty = tech
-                    ? TRADE_SPECIALTY_MAP[tech.tradeSpecialty] || tech.tradeSpecialty
-                    : 'Maintenance';
                   const startTimeStr = app.startTime ? app.startTime.substring(0, 5) : '--:--';
                   const endTimeStr = app.endTime ? app.endTime.substring(0, 5) : '--:--';
                   const isCancelled =
                     APPOINTMENT_STATUS_MAP[app.status] === 'Cancelled' || app.status === 'Cancelled';
+
+                  const ticket = ticketMap[(app.ticketId || '').toLowerCase()];
+                  const unitInfo =
+                    (ticket?.unitId && unitByIdMap[ticket.unitId.toLowerCase()]) ||
+                    (ticket?.unitNumber && unitByNumberMap[ticket.unitNumber.toString().toLowerCase()]) ||
+                    null;
+
+                  const propertyName = app.propertyName || unitInfo?.propertyName || ticket?.propertyName || 'SmartSpace Property';
+                  const unitNumber = app.unitNumber || ticket?.unitNumber || unitInfo?.unitNumber || 'N/A';
+                  const floorNumber =
+                    app.floor !== undefined && app.floor !== null
+                      ? app.floor
+                      : unitInfo?.floor !== undefined && unitInfo?.floor !== null
+                      ? unitInfo.floor
+                      : ticket?.floor !== undefined && ticket?.floor !== null
+                      ? ticket.floor
+                      : 1;
 
                   return (
                     <tr
@@ -443,11 +503,27 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
                         isCancelled ? 'bg-gray-50/30 text-gray-400' : ''
                       }`}
                     >
-                      {/* Ticket ID */}
-                      <td className="py-4 px-5 font-mono text-xs font-semibold text-gray-800">
+                      {/* Property Name */}
+                      <td className="py-4 px-5 font-semibold text-gray-900">
+                        <div className="flex items-center gap-2">
+                          <Building className="w-4 h-4 text-[#1E3A8A] shrink-0" />
+                          <span className="truncate">{propertyName}</span>
+                        </div>
+                      </td>
+
+                      {/* Unit Number */}
+                      <td className="py-4 px-5 font-semibold text-gray-800">
                         <div className="flex items-center gap-1.5">
-                          <Ticket className="w-3.5 h-3.5 text-[#1E3A8A]" />
-                          <span>{app.ticketId}</span>
+                          <Home className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span>Unit {unitNumber}</span>
+                        </div>
+                      </td>
+
+                      {/* Floor */}
+                      <td className="py-4 px-5 text-gray-700">
+                        <div className="flex items-center gap-1.5">
+                          <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span className="font-medium">Floor {floorNumber}</span>
                         </div>
                       </td>
 
@@ -457,14 +533,6 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
                           <User className="w-4 h-4 text-gray-400" />
                           <span className="font-semibold text-gray-900">{techName}</span>
                         </div>
-                      </td>
-
-                      {/* Trade Specialty */}
-                      <td className="py-4 px-5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                          <Wrench className="w-3 h-3 text-gray-500" />
-                          {techSpecialty}
-                        </span>
                       </td>
 
                       {/* Scheduled Window */}
