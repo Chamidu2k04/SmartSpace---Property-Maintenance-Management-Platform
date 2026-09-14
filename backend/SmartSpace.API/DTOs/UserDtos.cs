@@ -49,8 +49,8 @@ public record UserResponseDto(
 /// </summary>
 public record ChangeRoleDto(
     [Required(ErrorMessage = "New role is required.")]
-    [RegularExpression("^(Admin|Tenant|PropertyManager|InventoryOfficer|Technician)$",
-        ErrorMessage = "Invalid role. Allowed roles: Admin, Tenant, PropertyManager, InventoryOfficer, Technician.")]
+    [RegularExpression("^(Admin|Tenant|PropertyManager|InventoryOfficer)$",
+        ErrorMessage = "Invalid role. Allowed roles: Admin, Tenant, PropertyManager, InventoryOfficer. Technician accounts are managed by Property Managers.")]
     string NewRole
 );
 
