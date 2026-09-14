@@ -27,7 +27,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Tenant',
     'PropertyManager',
     'InventoryOfficer',
-    'Technician',
   ];
 
   @override
@@ -72,6 +71,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('You cannot modify your own administrator role.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Prevent modifying Technician accounts here (managed by Property Manager)
+    if (currentRole == 'Technician') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Technician accounts are managed by Property Managers.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -153,6 +163,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> _updateRole(String userId, String newRole) async {
+    if (newRole == 'Technician') {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Technician accounts are managed by Property Managers.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
     try {
       await _userService.updateUserRole(id: userId, newRole: newRole);
       setState(() {
@@ -492,20 +513,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                   ],
                                 ),
                               )
-                            : OutlinedButton(
-                                onPressed: () => _showRoleDialog(u, currentUserId),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  side: BorderSide(color: Colors.grey.shade300),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                            : role == 'Technician'
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.shade50,
+                                      border: Border.all(color: Colors.amber.shade200),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.lock_outline, size: 14, color: Colors.amber.shade800),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Managed by PM',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.amber.shade900,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : OutlinedButton(
+                                    onPressed: () => _showRoleDialog(u, currentUserId),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      side: BorderSide(color: Colors.grey.shade300),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Change',
+                                      style: TextStyle(fontSize: 12, color: _deepIndigo),
+                                    ),
                                   ),
-                                ),
-                                child: const Text(
-                                  'Change',
-                                  style: TextStyle(fontSize: 12, color: _deepIndigo),
-                                ),
-                              ),
                       ),
                     );
                   },
