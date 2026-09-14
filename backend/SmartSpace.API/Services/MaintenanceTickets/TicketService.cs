@@ -173,6 +173,26 @@ public class TicketService : ITicketService
         return true;
     }
 
+    public async Task<bool> UpdateTicketAsync(Guid ticketId, Guid tenantId, TicketUpdateRequestDto request)
+    {
+        var ticket = await _db.MaintenanceTickets
+            .FirstOrDefaultAsync(t => t.Id == ticketId && t.TenantId == tenantId && !t.IsDeleted);
+
+        if (ticket == null)
+            return false;
+
+        // Only allow editing if status is "Submitted"
+        if (ticket.Status != TicketStatus.Submitted)
+            throw new InvalidOperationException("Cannot edit a ticket that has already been processed.");
+
+        ticket.Description = request.Description.Trim();
+        ticket.UrgencyLevel = request.UrgencyLevel;
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<bool> DeleteTicketAsync(Guid ticketId)
     {
         var ticket = await _db.MaintenanceTickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);

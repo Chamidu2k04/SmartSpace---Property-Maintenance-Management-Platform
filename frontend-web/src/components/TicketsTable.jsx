@@ -36,11 +36,21 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // { id, unitNumber }
   const [toast, setToast] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [fullScreenImage, setFullScreenImage] = useState(null);
 
-  const getFullImageUrl = (url) => {
-    if (!url) return null;
-    return url.startsWith('http') ? url : `http://localhost:5030${url}`;
+  const getShortId = (id) => {
+    if (!id) return '';
+    return `#T-${id.substring(0, 8).toUpperCase()}`;
+  };
+
+  const getFullImageUrl = (relativePath) => {
+    if (!relativePath) return '';
+    if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+      return relativePath;
+    }
+    const cleanPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+    return `http://localhost:5030${cleanPath}`;
   };
 
   const showToast = (type, message) => {
@@ -159,11 +169,11 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
         </div>
       )}
 
-      {/* Full Image Preview Modal */}
-      {selectedImage && (
+      {/* Attachment Modal */}
+      {selectedTicket && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => setSelectedTicket(null)}
         >
           <div
             className="relative bg-white rounded-2xl max-w-2xl w-full p-4 shadow-2xl overflow-hidden border border-gray-100"
@@ -172,23 +182,78 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
               <h4 className="text-sm font-bold text-gray-900 truncate m-0 flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-[#1E3A8A]" />
-                {selectedImage.title}
+                Unit {selectedTicket.unitNumber || ''} Attachments
               </h4>
               <button
-                onClick={() => setSelectedImage(null)}
+                onClick={() => setSelectedTicket(null)}
                 className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="max-h-[70vh] overflow-hidden rounded-xl bg-gray-950 flex items-center justify-center p-2">
-              <img
-                src={selectedImage.url}
-                alt="Ticket Attachment Full Preview"
-                className="max-h-[65vh] w-auto max-w-full object-contain rounded-lg shadow-md"
-              />
+            <div className="max-h-[70vh] overflow-y-auto rounded-xl bg-gray-50 p-4">
+              {(() => {
+                const imagesToDisplay = selectedTicket.imageUrls && selectedTicket.imageUrls.length > 0 
+                  ? selectedTicket.imageUrls 
+                  : (selectedTicket.thumbnailUrl ? [selectedTicket.thumbnailUrl] : []);
+                
+                if (imagesToDisplay.length > 0) {
+                  return (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {imagesToDisplay.map((url, index) => (
+                        <div 
+                          key={index}
+                          className="aspect-square rounded-lg overflow-hidden bg-gray-200 cursor-pointer hover:ring-2 hover:ring-[#1E3A8A] transition-all relative group"
+                          onClick={() => setFullScreenImage(getFullImageUrl(url))}
+                        >
+                          <img
+                            src={getFullImageUrl(url)}
+                            alt={`Ticket attachment ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="hidden w-full h-full items-center justify-center bg-gray-100 text-gray-400 absolute inset-0">
+                            <ImageIcon className="w-8 h-8" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                    <ImageIcon className="w-12 h-12 mb-3 text-gray-300" />
+                    <p>No attachments available</p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Full-Screen Photo Viewer */}
+      {fullScreenImage && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setFullScreenImage(null)}
+        >
+          <button
+            onClick={() => setFullScreenImage(null)}
+            className="absolute top-6 right-6 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors z-[61]"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={fullScreenImage}
+            alt="Full screen preview"
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-md relative z-[60]"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 
@@ -210,7 +275,8 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
           <table className="w-full text-sm text-left">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/80">
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider w-12">#</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider w-12 hidden sm:table-cell">#</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Ticket ID</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Unit</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Photo</th>
                 <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted By</th>
@@ -229,8 +295,15 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                   className="hover:bg-blue-50/30 transition-colors duration-150"
                 >
                   {/* Row Number */}
-                  <td className="px-5 py-4 text-gray-400 font-medium text-xs">
+                  <td className="px-5 py-4 text-gray-400 font-medium text-xs hidden sm:table-cell">
                     {index + 1}
+                  </td>
+
+                  {/* Ticket ID */}
+                  <td className="px-5 py-4">
+                    <span className="inline-block px-2 py-1 rounded-md bg-gray-100 text-gray-600 text-xs font-mono font-semibold">
+                      {getShortId(ticket.id)}
+                    </span>
                   </td>
 
                   {/* Unit Number */}
@@ -245,12 +318,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                   <td className="px-5 py-4">
                     {ticket.thumbnailUrl ? (
                       <button
-                        onClick={() =>
-                          setSelectedImage({
-                            url: getFullImageUrl(ticket.thumbnailUrl),
-                            title: `Unit ${ticket.unitNumber || ''} Attachment`,
-                          })
-                        }
+                        onClick={() => setSelectedTicket(ticket)}
                         className="group flex items-center gap-1.5 p-1 rounded-lg border border-gray-200 hover:border-[#1E3A8A] bg-gray-50 hover:bg-blue-50/60 transition-all cursor-pointer"
                         title="Click to view full photo"
                       >

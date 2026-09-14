@@ -75,6 +75,33 @@ public class TicketsController : ControllerBase
         return Ok(ticket);
     }
 
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Tenant")]
+    public async Task<IActionResult> UpdateTicket(Guid id, [FromBody] TicketUpdateRequestDto request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var tenantId = GetUserId();
+
+        try
+        {
+            var success = await _ticketService.UpdateTicketAsync(id, tenantId, request);
+            if (!success)
+            {
+                return NotFound(new { message = "Ticket not found." });
+            }
+
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPatch("{id:guid}/status")]
     [Authorize(Roles = "PropertyManager,Technician")]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateTicketStatusDto dto)
