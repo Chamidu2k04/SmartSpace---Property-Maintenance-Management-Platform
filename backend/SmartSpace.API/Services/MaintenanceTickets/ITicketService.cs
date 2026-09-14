@@ -15,5 +15,7 @@ public interface ITicketService
 
     Task<bool> UpdateTicketStatusAsync(Guid ticketId, TicketStatus newStatus);
 
+    Task<bool> UpdateTicketAsync(Guid ticketId, Guid tenantId, TicketUpdateRequestDto request);
+
     Task<bool> DeleteTicketAsync(Guid ticketId);
 }

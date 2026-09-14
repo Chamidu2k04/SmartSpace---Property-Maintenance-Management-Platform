@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../models/lease_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/lease_provider.dart';
+import 'submit_ticket_screen.dart';
+import 'ticket_list_screen.dart';
 
 class TenantDashboard extends StatefulWidget {
   const TenantDashboard({super.key});
@@ -73,6 +75,18 @@ class _TenantDashboardState extends State<TenantDashboard> {
             const _EmptyCard()
           else
             _LeaseCard(lease: leases.activeLease!),
+          const SizedBox(height: 24),
+
+          // Maintenance Requests Section
+          const Text('Maintenance Requests',
+              style: TextStyle(
+                  fontSize: 19, fontWeight: FontWeight.bold, color: indigo)),
+          const SizedBox(height: 4),
+          Text('Report maintenance issues or track repair status',
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+          const SizedBox(height: 12),
+          const _MaintenanceCardSection(),
+
           const SizedBox(height: 20),
           _SecurityCard(email: user?.email ?? ''),
         ]),
@@ -348,3 +362,119 @@ class _SecurityCard extends StatelessWidget {
           subtitle: Text(email,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12))));
 }
+
+class _MaintenanceCardSection extends StatelessWidget {
+  const _MaintenanceCardSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            color: Colors.white,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const TicketListScreen()),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: _TenantDashboardState.indigo.withAlpha(20),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.build_circle_outlined,
+                        color: _TenantDashboardState.indigo,
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'My Tickets',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'View & track your requests',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Card(
+            color: Colors.white,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SubmitTicketScreen()),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: _TenantDashboardState.emerald.withAlpha(20),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.add_a_photo_outlined,
+                        color: _TenantDashboardState.emerald,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Report Issue',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Submit a new repair issue',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
