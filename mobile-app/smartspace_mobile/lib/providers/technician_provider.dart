@@ -320,7 +320,7 @@ class TechnicianProvider extends ChangeNotifier {
 
     try {
       final created = await _apiService.createAppointment(data);
-      _appointments.add(created);
+      _appointments.insert(0, created);
       _successMessage = 'Appointment created successfully.';
       _isLoading = false;
       notifyListeners();
@@ -434,7 +434,7 @@ class TechnicianProvider extends ChangeNotifier {
 
     try {
       final created = await _apiService.createTechnicianProfile(data);
-      _technicians.add(created);
+      _technicians.insert(0, created);
       _successMessage = 'Technician profile created successfully.';
       _isLoading = false;
       notifyListeners();
