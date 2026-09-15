@@ -11,4 +11,5 @@ public class TicketSummaryResponseDto
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public string? ThumbnailUrl { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
 }

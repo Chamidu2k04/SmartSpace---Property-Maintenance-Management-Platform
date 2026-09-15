@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SmartSpace.API.Data;
 using SmartSpace.API.Services;
+using SmartSpace.API.Configuration;
+using SmartSpace.API.Services.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +36,10 @@ builder.Services.AddScoped<SmartSpace.API.Services.PropertyManagement.ILeaseServ
 // Maintenance Request Management (Member 2)
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.ITicketService,
     SmartSpace.API.Services.MaintenanceTickets.TicketService>();
+// builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IFileStorageService,
+//     SmartSpace.API.Services.MaintenanceTickets.LocalFileStorageService>();
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IFileStorageService,
-    SmartSpace.API.Services.MaintenanceTickets.LocalFileStorageService>();
+    SmartSpace.API.Services.Common.CloudinaryFileStorageService>();
 // Email notification service for resolved ticket alerts (Member 2 — scoped to MaintenanceTickets)
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IEmailService,
     SmartSpace.API.Services.MaintenanceTickets.EmailService>();
@@ -112,6 +116,21 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+// Cloudinary Configuration
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("Cloudinary"));
+
+var cloudinarySettings = builder.Configuration.GetSection("Cloudinary").Get<CloudinarySettings>()
+    ?? throw new InvalidOperationException("Cloudinary settings are missing.");
+
+var cloudinaryAccount = new CloudinaryDotNet.Account(
+    cloudinarySettings.CloudName,
+    cloudinarySettings.ApiKey,
+    cloudinarySettings.ApiSecret);
+
+var cloudinary = new CloudinaryDotNet.Cloudinary(cloudinaryAccount);
+builder.Services.AddSingleton(cloudinary);
 
 var app = builder.Build();
 
