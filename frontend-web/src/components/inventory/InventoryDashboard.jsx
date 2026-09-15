@@ -8,11 +8,14 @@ import {
   Package, 
   Boxes, 
   DollarSign, 
-  RefreshCw 
+  RefreshCw,
+  QrCode
 } from 'lucide-react';
 import { inventoryService } from '../../services/inventoryService';
 import ItemModal from './ItemModal';
 import AccessDenied from './AccessDenied';
+import QrCodeModal from './QrCodeModal';
+import QrScannerModal from './QrScannerModal';
 
 const CATEGORY_NAMES = {
   0: 'Plumbing',
@@ -40,6 +43,10 @@ export default function InventoryDashboard() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+
+  // QR Modals State
+  const [qrModalItem, setQrModalItem] = useState(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   // Load Inventory & Suppliers
   const loadData = async () => {
@@ -101,12 +108,15 @@ export default function InventoryDashboard() {
     setIsModalOpen(false);
   };
 
-  // Filtered Items
+  // Filtered Items (supports searching part name, supplier name, or exact Part ID/UUID)
   const filteredItems = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
     return items.filter((item) => {
       const matchesSearch =
-        (item.itemName && item.itemName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.supplierName && item.supplierName.toLowerCase().includes(searchTerm.toLowerCase()));
+        !query ||
+        (item.itemName && item.itemName.toLowerCase().includes(query)) ||
+        (item.supplierName && item.supplierName.toLowerCase().includes(query)) ||
+        (item.id && item.id.toLowerCase().includes(query));
       
       const itemCategoryStr = String(CATEGORY_NAMES[item.category] || item.category);
       const matchesCategory = categoryFilter === 'ALL' || itemCategoryStr === categoryFilter;
@@ -182,15 +192,38 @@ export default function InventoryDashboard() {
 
       {/* Filter & Search Bar */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search part name or supplier..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-[#F3F4F6] border border-transparent rounded-lg focus:bg-white focus:border-[#1E3A8A] focus:outline-none transition-all"
-          />
+        <div className="flex items-center gap-2 w-full md:w-auto flex-1 max-w-md">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search part name, supplier, or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 text-sm bg-[#F3F4F6] border border-transparent rounded-lg focus:bg-white focus:border-[#1E3A8A] focus:outline-none transition-all"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-semibold cursor-pointer"
+                title="Clear filter"
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          {/* QR Scanner Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsScannerOpen(true)}
+            title="Scan QR Code via webcam or upload image"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#1E3A8A] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-100 transition-colors cursor-pointer shrink-0"
+          >
+            <QrCode className="w-4 h-4" />
+            <span className="hidden sm:inline">Scan QR</span>
+          </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -322,6 +355,13 @@ export default function InventoryDashboard() {
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
+                            onClick={() => setQrModalItem(item)}
+                            title="Generate & Download QR Code"
+                            className="p-1.5 text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <QrCode className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleEdit(item)}
                             title="Edit Part"
                             className="p-1.5 text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
@@ -354,6 +394,26 @@ export default function InventoryDashboard() {
           suppliers={suppliers}
           onClose={() => setIsModalOpen(false)}
           onSuccess={handleItemSaved}
+        />
+      )}
+
+      {/* Part QR Code Generator & Download Modal */}
+      {qrModalItem && (
+        <QrCodeModal
+          isOpen={Boolean(qrModalItem)}
+          item={qrModalItem}
+          onClose={() => setQrModalItem(null)}
+        />
+      )}
+
+      {/* QR Code Scanner Modal */}
+      {isScannerOpen && (
+        <QrScannerModal
+          isOpen={isScannerOpen}
+          onClose={() => setIsScannerOpen(false)}
+          onScan={(decodedCode) => {
+            setSearchTerm(decodedCode);
+          }}
         />
       )}
     </div>

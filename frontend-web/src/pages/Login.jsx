@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { Building2, Lock, Mail, User, AlertCircle, CheckCircle2, UserPlus, LogIn } from 'lucide-react';
+import { Building2, Lock, Mail, User, AlertCircle, CheckCircle2, UserPlus, LogIn, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const location = useLocation();
@@ -12,6 +12,7 @@ export default function Login() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -22,6 +23,7 @@ export default function Login() {
     setMode(newMode);
     setValidationError('');
     setSuccessMessage('');
+    setShowPassword(false);
   };
 
   const handleSubmit = async (e) => {
@@ -171,15 +173,27 @@ export default function Login() {
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="•••••••• (Min 6 characters)"
-                className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                className="w-full pl-9 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 

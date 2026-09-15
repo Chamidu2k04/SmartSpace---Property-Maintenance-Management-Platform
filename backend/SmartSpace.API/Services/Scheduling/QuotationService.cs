@@ -129,6 +129,7 @@ public class QuotationService : IQuotationService
     {
         var quotations = await _context.Quotations
             .AsNoTracking()
+            .OrderByDescending(q => q.Id)
             .ToListAsync();
 
         return quotations.Select(MapToResponseDto).ToList();

@@ -211,6 +211,7 @@ public class AppointmentService : IAppointmentService
                from unit in unitGroup.DefaultIfEmpty()
                join p in _context.Properties.AsNoTracking() on unit.PropertyId equals p.Id into propertyGroup
                from property in propertyGroup.DefaultIfEmpty()
+               orderby a.ScheduledDate descending, a.StartTime descending
                select new AppointmentResponseDto
                {
                    Id = a.Id,

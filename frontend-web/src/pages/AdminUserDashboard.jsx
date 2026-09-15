@@ -8,7 +8,6 @@ const SYSTEM_ROLES = [
   'Tenant',
   'PropertyManager',
   'InventoryOfficer',
-  'Technician',
 ];
 
 export default function AdminUserDashboard() {
@@ -48,6 +47,10 @@ export default function AdminUserDashboard() {
   };
 
   const handleRoleChange = async (userId, newRole) => {
+    if (newRole === 'Technician') {
+      showAlert('error', 'Technician accounts are managed by Property Managers.');
+      return;
+    }
     setUpdatingUserId(userId);
     try {
       const updated = await userService.updateUserRole(userId, newRole);
@@ -112,8 +115,61 @@ export default function AdminUserDashboard() {
         </div>
       )}
 
+      {/* Summary KPI Statistic Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Users</p>
+            <h3 className="text-2xl font-bold text-gray-900 mt-1">{users.length}</h3>
+            <span className="text-[11px] text-gray-500 font-medium">Registered accounts</span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
+            <UserCheck className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Administrators</p>
+            <h3 className="text-2xl font-bold text-purple-700 mt-1">
+              {users.filter((u) => u.role === 'Admin').length}
+            </h3>
+            <span className="text-[11px] text-purple-600 font-medium">Full governance access</span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+            <Shield className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Property Managers</p>
+            <h3 className="text-2xl font-bold text-indigo-700 mt-1">
+              {users.filter((u) => u.role === 'PropertyManager').length}
+            </h3>
+            <span className="text-[11px] text-indigo-600 font-medium">Operations & leases</span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <Shield className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Tenants & Officers</p>
+            <h3 className="text-2xl font-bold text-[#10B981] mt-1">
+              {users.filter((u) => u.role === 'Tenant' || u.role === 'InventoryOfficer').length}
+            </h3>
+            <span className="text-[11px] text-emerald-600 font-medium">Residents & stock</span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#10B981] flex items-center justify-center">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+
       {/* Search Bar Card */}
-      <div className="bg-[#FFFFFF] rounded-xl shadow-sm border border-gray-200/80 p-5">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-5 h-5 absolute left-3.5 top-3 text-gray-400" />
@@ -122,7 +178,7 @@ export default function AdminUserDashboard() {
               placeholder="Search by full name or email (e.g. john@example.com)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-10 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:bg-white transition"
+              className="w-full pl-11 pr-10 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:bg-white transition"
             />
             {searchQuery && (
               <button
@@ -141,7 +197,7 @@ export default function AdminUserDashboard() {
           <button
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#152865] text-white text-sm font-medium rounded-lg shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
+            className="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#152865] text-white text-sm font-medium rounded-lg shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             {isLoading ? 'Searching...' : 'Search Users'}
           </button>
@@ -149,10 +205,10 @@ export default function AdminUserDashboard() {
       </div>
 
       {/* Users Data Table Card */}
-      <div className="bg-[#FFFFFF] rounded-xl shadow-sm border border-gray-200/80 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-xs uppercase font-semibold text-gray-500 border-b border-gray-200">
+            <thead className="bg-gray-50/80 text-xs uppercase font-semibold text-gray-500 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4">User Details</th>
                 <th className="px-6 py-4">Email</th>
@@ -237,6 +293,14 @@ export default function AdminUserDashboard() {
                           >
                             <Lock className="w-3.5 h-3.5 text-gray-400" />
                             Locked (Self)
+                          </span>
+                        ) : user.role === 'Technician' ? (
+                          <span
+                            title="Technician accounts are managed by Property Managers"
+                            className="inline-flex items-center gap-1 text-xs text-amber-700 font-medium italic bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-lg cursor-not-allowed"
+                          >
+                            <Lock className="w-3.5 h-3.5 text-amber-600" />
+                            Managed by PM
                           </span>
                         ) : (
                           <select

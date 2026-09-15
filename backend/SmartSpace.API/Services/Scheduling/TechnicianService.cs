@@ -97,14 +97,26 @@ public class TechnicianService : ITechnicianService
     /// </summary>
     public async Task<IEnumerable<TechnicianProfileResponseDto>> GetAllTechniciansAsync()
     {
-        var technicians = await _context.TechnicianProfiles
-            .AsNoTracking()
-            .ToListAsync();
+        var query = from t in _context.TechnicianProfiles.AsNoTracking()
+                    join u in _context.Users.AsNoTracking() on t.UserId equals u.Id into userGroup
+                    from u in userGroup.DefaultIfEmpty()
+                    orderby u != null ? u.CreatedAt : DateTime.MinValue descending
+                    select new { Tech = t, User = u };
 
+        var list = await query.ToListAsync();
         var result = new List<TechnicianProfileResponseDto>();
-        foreach (var tech in technicians)
+
+        foreach (var item in list)
         {
-            result.Add(await MapToResponseDtoAsync(tech));
+            result.Add(new TechnicianProfileResponseDto
+            {
+                Id = item.Tech.Id,
+                UserId = item.Tech.UserId,
+                Email = item.User?.Email,
+                FullName = item.User?.FullName,
+                TradeSpecialty = item.Tech.TradeSpecialty,
+                HourlyRate = item.Tech.HourlyRate
+            });
         }
 
         return result;
