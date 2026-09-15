@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/technician_models.dart';
 import '../models/user_model.dart';
+import '../models/inventory_item.dart';
 import '../providers/technician_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/inventory_provider.dart';
+import './standalone_qr_scanner_screen.dart';
 
 /// Screen displaying Appointments & Scheduling module (FR9)
 class TechnicianScheduleScreen extends StatefulWidget {
@@ -644,6 +647,373 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
       Appointment appointment, String newStatus) async {
     if (appointment.status == newStatus) return;
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final techProvider = Provider.of<TechnicianProvider>(context, listen: false);
+    final isManager = authProvider.user != null
+        ? authProvider.user!.role == UserRole.propertyManager
+        : techProvider.isPropertyManager;
+
+    // Only prompt spare parts selection for Technicians, not Property Managers
+    if (newStatus == AppointmentStatus.completed && !isManager) {
+      _showStockConsumptionModal(appointment);
+      return;
+    }
+
+    await _executeStatusUpdate(appointment, newStatus);
+  }
+
+  void _showStockConsumptionModal(Appointment appointment) {
+    final inventoryProvider = Provider.of<InventoryProvider>(context, listen: false);
+    inventoryProvider.fetchInventory();
+
+    Map<String, int> selectedParts = {};
+    String searchQuery = '';
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (innerCtx, setSheetState) {
+            final allItems = inventoryProvider.items;
+            final filteredItems = searchQuery.isEmpty
+                ? allItems
+                : allItems
+                    .where((i) =>
+                        i.itemName.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                        i.category.toLowerCase().contains(searchQuery.toLowerCase()))
+                    .toList();
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(innerCtx).viewInsets.bottom + 20,
+                top: 20,
+                left: 20,
+                right: 20,
+              ),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.75,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.inventory_2_outlined, color: _deepIndigo),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Consume Parts for Job',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: _deepIndigo,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.of(ctx).pop(),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Select parts used for Unit ${appointment.unitNumber}. Deducts stock upon marking completed.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Search & QR Scan Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            onChanged: (val) => setSheetState(() => searchQuery = val.trim()),
+                            decoration: InputDecoration(
+                              hintText: 'Search part by name...',
+                              prefixIcon: const Icon(Icons.search, size: 18),
+                              filled: true,
+                              fillColor: Colors.grey.shade100,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _deepIndigo,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () async {
+                            final scannedId = await Navigator.push<String>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const StandaloneQrScannerScreen(),
+                              ),
+                            );
+                            if (scannedId != null && scannedId.trim().isNotEmpty) {
+                              final matchedPart = allItems.firstWhere(
+                                (i) => i.id.toLowerCase() == scannedId.trim().toLowerCase(),
+                                orElse: () => InventoryItem(
+                                  id: scannedId.trim(),
+                                  supplierId: '',
+                                  itemName: scannedId.trim(),
+                                  category: 'General',
+                                  stockQuantity: 0,
+                                  unitCost: 0,
+                                ),
+                              );
+                              setSheetState(() {
+                                selectedParts[matchedPart.id] = (selectedParts[matchedPart.id] ?? 0) + 1;
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.qr_code_scanner, size: 16),
+                          label: const Text('Scan QR', style: TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    if (selectedParts.isNotEmpty) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _emeraldGreen.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: _emeraldGreen.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle, size: 16, color: _emeraldGreen),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${selectedParts.values.fold(0, (a, b) => a + b)} item(s) selected to consume',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: _emeraldGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+
+                    // Parts list
+                    Expanded(
+                      child: filteredItems.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No matching spare parts found.',
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: filteredItems.length,
+                              separatorBuilder: (_, __) => const Divider(height: 1),
+                              itemBuilder: (context, idx) {
+                                final item = filteredItems[idx];
+                                final currentQty = selectedParts[item.id] ?? 0;
+                                final inStock = item.stockQuantity;
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item.itemName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.indigo.shade50,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    item.category,
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Colors.indigo.shade700,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  'In Stock: $inStock',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: inStock > 0 ? Colors.grey.shade700 : Colors.red,
+                                                    fontWeight: inStock == 0 ? FontWeight.bold : FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.remove_circle_outline, size: 20),
+                                            color: currentQty > 0 ? Colors.red.shade600 : Colors.grey.shade400,
+                                            onPressed: currentQty > 0
+                                                ? () {
+                                                    setSheetState(() {
+                                                      if (currentQty == 1) {
+                                                        selectedParts.remove(item.id);
+                                                      } else {
+                                                        selectedParts[item.id] = currentQty - 1;
+                                                      }
+                                                    });
+                                                  }
+                                                : null,
+                                          ),
+                                          Text(
+                                            '$currentQty',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.add_circle_outline, size: 20),
+                                            color: currentQty < inStock ? _deepIndigo : Colors.grey.shade400,
+                                            onPressed: currentQty < inStock
+                                                ? () {
+                                                    setSheetState(() {
+                                                      selectedParts[item.id] = currentQty + 1;
+                                                    });
+                                                  }
+                                                : null,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: isSubmitting
+                                ? null
+                                : () async {
+                                    Navigator.of(ctx).pop();
+                                    await _executeStatusUpdate(appointment, AppointmentStatus.completed);
+                                  },
+                            child: const Text('Skip & Complete'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _emeraldGreen,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: (selectedParts.isEmpty || isSubmitting)
+                                ? null
+                                : () async {
+                                    setSheetState(() => isSubmitting = true);
+                                    for (final entry in selectedParts.entries) {
+                                      final itemIndex = inventoryProvider.items.indexWhere((i) => i.id == entry.key);
+                                      if (itemIndex != -1) {
+                                        final item = inventoryProvider.items[itemIndex];
+                                        final newQuantity = (item.stockQuantity - entry.value).clamp(0, 999999);
+                                        int catInt = 3;
+                                        switch (item.category.toLowerCase()) {
+                                          case 'plumbing': catInt = 0; break;
+                                          case 'electrical': catInt = 1; break;
+                                          case 'hvac': catInt = 2; break;
+                                          default: catInt = 3; break;
+                                        }
+                                        try {
+                                          await inventoryProvider.updateInventoryItem(
+                                            id: item.id,
+                                            supplierId: item.supplierId,
+                                            itemName: item.itemName,
+                                            category: catInt,
+                                            stockQuantity: newQuantity,
+                                            unitCost: item.unitCost,
+                                          );
+                                        } catch (_) {}
+                                      }
+                                    }
+                                    if (ctx.mounted) Navigator.of(ctx).pop();
+                                    await _executeStatusUpdate(appointment, AppointmentStatus.completed);
+                                  },
+                            child: isSubmitting
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Text(
+                                    'Confirm & Consume',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _executeStatusUpdate(
+      Appointment appointment, String newStatus) async {
     setState(() => _updatingAppointmentId = appointment.id);
     final provider = Provider.of<TechnicianProvider>(context, listen: false);
 
