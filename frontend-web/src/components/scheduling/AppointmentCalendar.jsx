@@ -28,6 +28,7 @@ import {
 import { propertyService } from '../../services/propertyService';
 import { useAuthStore } from '../../store/useAuthStore';
 import AppointmentModal from './AppointmentModal';
+import ConsumePartsModal from './ConsumePartsModal';
 
 export default function AppointmentCalendar({ isTechnicianView = false }) {
   const { user } = useAuthStore();
@@ -55,6 +56,10 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
   // Cancelling State
   const [cancellingId, setCancellingId] = useState(null);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
+
+  // Consume Parts Modal State
+  const [consumingAppointment, setConsumingAppointment] = useState(null);
+  const [isConsumeModalOpen, setIsConsumeModalOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -137,6 +142,16 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
   };
 
   const handleTechnicianStatusChange = async (appointment, newStatus) => {
+    if (newStatus === 'Completed' || newStatus === 'completed') {
+      setConsumingAppointment(appointment);
+      setIsConsumeModalOpen(true);
+      return;
+    }
+
+    await executeStatusUpdate(appointment, newStatus);
+  };
+
+  const executeStatusUpdate = async (appointment, newStatus) => {
     setUpdatingStatusId(appointment.id);
     setError(null);
     try {
@@ -628,6 +643,21 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
           isLoading={isSaving}
         />
       )}
+
+      {/* Consume Parts Modal */}
+      <ConsumePartsModal
+        isOpen={isConsumeModalOpen}
+        onClose={() => {
+          setIsConsumeModalOpen(false);
+          setConsumingAppointment(null);
+        }}
+        appointment={consumingAppointment}
+        onConfirmComplete={async (app) => {
+          if (app) {
+            await executeStatusUpdate(app, 'Completed');
+          }
+        }}
+      />
     </div>
   );
 }
