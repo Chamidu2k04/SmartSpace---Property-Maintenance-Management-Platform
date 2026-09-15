@@ -1,11 +1,11 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TenantLayout from "../components/tenant/TenantLayout";
 import TicketCard from "../components/tenant/TicketCard";
 import api from "../services/api";
 import {
   ClipboardList, Plus, AlertTriangle, Loader2, RefreshCw,
-  CheckCircle2, Clock, Send, Filter,
+  CheckCircle2, Clock, Send, Filter, Search, X,
 } from "lucide-react";
 
 /** Status filter tabs for the ticket list */
@@ -24,6 +24,7 @@ export default function TenantMaintenance() {
   const [isLoading, setIsLoading]   = useState(true);
   const [error, setError]           = useState(null);
   const [activeFilter, setFilter]   = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchTickets = useCallback(async () => {
     setIsLoading(true);
@@ -56,6 +57,16 @@ export default function TenantMaintenance() {
   const filteredTickets = activeFilter
     ? tickets.filter(t => t.status === activeFilter)
     : tickets;
+
+  // Search filter on top of status filter — by Ticket ID
+  const getShortId = (id) => id ? `#T-${id.substring(0, 8).toUpperCase()}` : '';
+  const searchedTickets = searchQuery.trim()
+    ? filteredTickets.filter(t => {
+        const query = searchQuery.toLowerCase().replace('#', '');
+        const shortId = t.id ? `t-${t.id.substring(0, 8)}`.toLowerCase() : '';
+        return shortId.includes(query) || t.id?.toLowerCase().includes(query);
+      })
+    : filteredTickets;
 
   return (
     <TenantLayout>
@@ -140,6 +151,34 @@ export default function TenantMaintenance() {
         </button>
       </div>
 
+      {/* ── Search Bar ── */}
+      <div className="mb-4 flex items-center gap-3">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Ticket ID (e.g. #T-285611A6)..."
+            className="w-full pl-10 pr-10 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] bg-white transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Clear"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <span className="text-xs text-gray-500 whitespace-nowrap shrink-0">
+            {searchedTickets.length} result{searchedTickets.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       {/* ── Ticket List ── */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4 text-gray-400">
@@ -185,9 +224,28 @@ export default function TenantMaintenance() {
             </button>
           )}
         </div>
+      ) : searchedTickets.length === 0 ? (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-16 flex flex-col items-center text-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+            <Search className="w-8 h-8 text-gray-300" />
+          </div>
+          <div>
+            <p className="font-semibold text-gray-800 text-sm">No tickets match your search</p>
+            <p className="text-gray-400 text-xs mt-1">
+              No results for &quot;{searchQuery}&quot;
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="text-xs font-semibold text-[#1E3A8A] hover:underline"
+          >
+            Clear search
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredTickets.map(ticket => (
+          {searchedTickets.map(ticket => (
             <TicketCard key={ticket.id} ticket={ticket} />
           ))}
         </div>
