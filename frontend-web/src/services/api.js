@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5030/api';
+const BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:5030/api';
 
 /**
  * Lightweight fetch wrapper with automatic JWT Bearer token injection
