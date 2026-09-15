@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 
-const API_URL = 'http://localhost:5030/api/auth';
+const API_URL = import.meta.env?.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/auth`
+  : 'http://localhost:5030/api/auth';
 
 const getInitialUser = () => {
   try {

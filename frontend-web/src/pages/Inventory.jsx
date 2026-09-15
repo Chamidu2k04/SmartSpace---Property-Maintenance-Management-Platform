@@ -9,8 +9,8 @@ export default function Inventory() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'suppliers'
 
-  // If the user's role is not InventoryOfficer, render the user-friendly Access Denied card
-  if (user?.role && user.role !== 'InventoryOfficer') {
+  // If the user's role is not InventoryOfficer or InventoryManager, render Access Denied
+  if (user?.role && user.role !== 'InventoryOfficer' && user.role !== 'InventoryManager') {
     return <AccessDenied currentRole={user.role} />;
   }
 
