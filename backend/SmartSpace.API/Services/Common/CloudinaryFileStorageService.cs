@@ -31,15 +31,23 @@ public class CloudinaryFileStorageService : IFileStorageService
             Transformation = new Transformation().Quality("auto").FetchFormat("auto")
         };
 
-        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-        if (uploadResult.Error != null)
+        try
         {
-            _logger.LogError($"Cloudinary upload failed: {uploadResult.Error.Message}");
-            throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
-        }
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
-        // Return full HTTPS URL from Cloudinary
-        return uploadResult.SecureUrl.ToString();
+            if (uploadResult.Error != null)
+            {
+                _logger.LogError($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                throw new InvalidOperationException($"Image upload failed: Cloudinary upload failed with message: {uploadResult.Error.Message}");
+            }
+
+            // Return full HTTPS URL from Cloudinary
+            return uploadResult.SecureUrl.ToString();
+        }
+        catch (Exception ex) when (ex is not InvalidOperationException)
+        {
+            _logger.LogError(ex, "Exception occurred during Cloudinary upload.");
+            throw new InvalidOperationException("Image upload failed: Cloudinary is not configured or unreachable.", ex);
+        }
     }
 }
