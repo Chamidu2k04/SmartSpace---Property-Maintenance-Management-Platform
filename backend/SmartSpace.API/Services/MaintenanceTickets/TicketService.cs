@@ -77,7 +77,8 @@ public class TicketService : ITicketService
                 UrgencyLevel = t.UrgencyLevel.ToString(),
                 Status = t.Status.ToString(),
                 CreatedAt = t.CreatedAt,
-                ThumbnailUrl = t.Images.Select(i => i.ImageUrl).FirstOrDefault()
+                ThumbnailUrl = t.Images.Select(i => i.ImageUrl).FirstOrDefault(),
+                ImageUrls = t.Images.Select(i => i.ImageUrl).ToList()
             })
             .ToListAsync();
     }
@@ -103,7 +104,8 @@ public class TicketService : ITicketService
                 UrgencyLevel = t.UrgencyLevel.ToString(),
                 Status = t.Status.ToString(),
                 CreatedAt = t.CreatedAt,
-                ThumbnailUrl = t.Images.Select(i => i.ImageUrl).FirstOrDefault()
+                ThumbnailUrl = t.Images.Select(i => i.ImageUrl).FirstOrDefault(),
+                ImageUrls = t.Images.Select(i => i.ImageUrl).ToList()
             })
             .ToListAsync();
     }
