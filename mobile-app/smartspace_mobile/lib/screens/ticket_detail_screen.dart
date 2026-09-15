@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/ticket_model.dart';
+import '../models/user_model.dart';
+import '../providers/auth_provider.dart';
 import '../providers/ticket_provider.dart';
 import '../services/ticket_service.dart';
 import '../widgets/status_badge.dart';
@@ -69,8 +71,14 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final userRole = authProvider.user?.role;
+
     final ticket = _ticket;
-    final canEdit = ticket != null && ticket.status == TicketStatus.submitted;
+
+    final canEdit = userRole == UserRole.tenant && 
+                    ticket != null && 
+                    ticket.status == TicketStatus.submitted;
 
     return Scaffold(
       backgroundColor: _offWhite,
@@ -80,6 +88,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
         title: const Text('Maintenance Details', style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
         actions: [
+          // Only show Edit button for Tenants with Submitted status
           if (canEdit)
             IconButton(
               icon: const Icon(Icons.edit_outlined),
