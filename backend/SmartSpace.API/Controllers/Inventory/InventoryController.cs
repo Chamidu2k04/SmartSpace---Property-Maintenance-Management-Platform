@@ -9,11 +9,11 @@ namespace SmartSpace.API.Controllers.Inventory;
 
 /// <summary>
 /// Manages spare parts inventory and reservation workflows for maintenance operations.
-/// Accessible by Inventory Officers.
+/// Accessible by Inventory Officers and Technicians.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "InventoryOfficer")]
+[Authorize(Roles = "InventoryOfficer,Technician")]
 public class InventoryController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -304,5 +304,73 @@ public class InventoryController : ControllerBase
         };
 
         return Ok(responseDto);
+    }
+
+    /// <summary>
+    /// POST /api/inventory/consume
+    /// Permanently deducts used inventory stock when a technician completes a maintenance task.
+    /// Accessible only by Technicians.
+    /// </summary>
+    [HttpPost("consume")]
+    [Authorize(Roles = "Technician")]
+    public async Task<IActionResult> ConsumeParts([FromBody] ConsumePartsRequestDto request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // 1. Basic validation: ensure the list is not empty
+        if (request.UsedParts == null || !request.UsedParts.Any())
+        {
+            return BadRequest(new { message = "No parts provided to consume." });
+        }
+
+        // List to hold validated items and deduction quantities
+        var itemsToDeduct = new List<(InventoryItem Item, int QuantityToDeduct)>();
+
+        // 2. Loop Through Parts & Stock Check
+        foreach (var partDto in request.UsedParts)
+        {
+            // Find the inventory item in the database
+            var item = await _context.InventoryItems.FindAsync(partDto.ItemId);
+
+            // Check if item exists
+            if (item == null)
+            {
+                return BadRequest(new 
+                { 
+                    message = $"Inventory item with ID '{partDto.ItemId}' does not exist." 
+                });
+            }
+
+            // Check if there is enough stock available
+            if (item.StockQuantity < partDto.QuantityUsed)
+            {
+                return BadRequest(new 
+                { 
+                    message = $"Not enough stock for item '{item.ItemName}'. Available: {item.StockQuantity}, Requested: {partDto.QuantityUsed}." 
+                });
+            }
+
+            // Stash valid item and deduction amount
+            itemsToDeduct.Add((item, partDto.QuantityUsed));
+        }
+
+        // 3. Deduct Stock (executed only after verifying ALL items have sufficient stock)
+        foreach (var (item, quantityToDeduct) in itemsToDeduct)
+        {
+            item.StockQuantity -= quantityToDeduct;
+        }
+
+        // 4. Save changes in a single database transaction
+        await _context.SaveChangesAsync();
+
+        return Ok(new 
+        { 
+            message = "Parts consumed successfully and inventory updated.",
+            ticketId = request.TicketId,
+            consumedCount = itemsToDeduct.Count
+        });
     }
 }

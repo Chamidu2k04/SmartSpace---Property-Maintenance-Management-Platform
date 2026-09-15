@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import 'technician_schedule_screen.dart';
 import 'quotation_approval_screen.dart';
 import 'technician_management_screen.dart';
+import 'maintenance_approvals_screen.dart';
 
 /// Dedicated Dashboard Screen for Property Managers (FR9, FR10 & Technician Management)
 class PropertyManagerDashboard extends StatefulWidget {
@@ -22,6 +23,7 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
     TechnicianScheduleScreen(isEmbedded: true),
     QuotationApprovalScreen(isEmbedded: true),
     TechnicianManagementScreen(isEmbedded: true),
+    MaintenanceApprovalsScreen(),
   ];
 
   @override
@@ -39,7 +41,9 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
             Icon(
               _currentTabIndex == 0
                   ? Icons.calendar_month
-                  : (_currentTabIndex == 1 ? Icons.receipt_long : Icons.engineering),
+                  : (_currentTabIndex == 1
+                      ? Icons.receipt_long
+                      : (_currentTabIndex == 2 ? Icons.engineering : Icons.build)),
               size: 22,
             ),
             const SizedBox(width: 10),
@@ -48,7 +52,9 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
                   ? 'Appointments & Scheduling'
                   : (_currentTabIndex == 1
                       ? 'Quotations & Approvals'
-                      : 'Technician Management Directory'),
+                      : (_currentTabIndex == 2
+                          ? 'Technician Management Directory'
+                          : 'Maintenance Requests')),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ],
@@ -86,6 +92,11 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
             icon: Icon(Icons.engineering_outlined),
             selectedIcon: Icon(Icons.engineering, color: _deepIndigo),
             label: 'Technicians',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.build_outlined),
+            selectedIcon: Icon(Icons.build, color: _deepIndigo),
+            label: 'Maintenance',
           ),
         ],
       ),

@@ -29,28 +29,32 @@ export default function AdminLayout({ children }) {
       { label: 'Inventory & Suppliers', path: '/inventory', icon: Package },
       { label: 'User Profile', path: '/profile', icon: User },
     ];
-  } else {
-    // PropertyManager, Technician, Tenant, and regular roles
+  } else if (user?.role === 'Tenant') {
+    // Tenant — Member 2: show only tenant-relevant links; hide Manager-only pages
+    navItems = [
+      { label: 'Dashboard',        path: '/dashboard',          icon: LayoutDashboard },
+      { label: 'My Maintenance',   path: '/tenant/maintenance', icon: Wrench          },
+      { label: 'Submit Request',   path: '/tenant/submit',      icon: Calendar        },
+      { label: 'User Profile',     path: '/profile',            icon: User            },
+    ];
+  } else if (user?.role === 'PropertyManager') {
     navItems = [
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-      ...(user?.role === 'PropertyManager'
-        ? [{ label: 'Properties & Leases', path: '/properties', icon: Building2 }]
-        : []),
+      { label: 'Properties & Leases', path: '/properties', icon: Building2 },
       { label: 'Maintenance', path: '/maintenance', icon: Wrench },
-      ...((user?.role === 'PropertyManager' || user?.role === 'Technician')
-        ? [
-            {
-              label: user?.role === 'Technician' ? 'My Assigned Jobs' : 'Scheduling & Quotation',
-              path: '/scheduling',
-              icon: Calendar,
-            },
-          ]
-        : []),
-      {
-        label: 'User Profile',
-        path: user?.role === 'Technician' ? '/technician-profile' : '/profile',
-        icon: User,
-      },
+      { label: 'Scheduling & Quotation', path: '/scheduling', icon: Calendar },
+      { label: 'User Profile', path: '/profile', icon: User },
+    ];
+  } else if (user?.role === 'Technician') {
+    navItems = [
+      { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+      { label: 'My Assigned Jobs', path: '/scheduling', icon: Calendar },
+      { label: 'User Profile', path: '/technician-profile', icon: User },
+    ];
+  } else {
+    navItems = [
+      { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+      { label: 'User Profile', path: '/profile', icon: User },
     ];
   }
 

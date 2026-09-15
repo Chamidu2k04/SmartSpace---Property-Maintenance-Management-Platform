@@ -50,6 +50,68 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
+  /// Load all maintenance requests (Property Manager only).
+  Future<void> loadAllTickets() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _tickets = await _ticketService.getAllTickets();
+      // Sort most recent first
+      _tickets.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Update the status of a ticket (Property Manager only).
+  Future<bool> updateTicketStatus({
+    required String ticketId,
+    required String newStatus,
+  }) async {
+    _isSubmitting = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _ticketService.updateTicketStatus(ticketId, newStatus);
+      // Reload list from backend to get updated data
+      await loadAllTickets();
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Delete a ticket (PropertyManager only).
+  Future<bool> deleteTicket(String ticketId) async {
+    _isSubmitting = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      await _ticketService.deleteTicket(ticketId);
+      // Remove from local list
+      _tickets.removeWhere((t) => t.id == ticketId);
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Submit a new ticket. Returns the newly created ticket on success.
   Future<Ticket?> submitTicket({
     required String unitId,

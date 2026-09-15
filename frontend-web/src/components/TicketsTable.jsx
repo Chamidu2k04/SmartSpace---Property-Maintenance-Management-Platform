@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import UrgencyBadge from './UrgencyBadge';
 import { updateTicketStatus, deleteTicket } from '../services/ticketService';
-import { ChevronDown, Loader2, CheckCircle2, AlertTriangle, Image as ImageIcon, X, Trash2 } from 'lucide-react';
+import { ChevronDown, Loader2, CheckCircle2, AlertTriangle, Image as ImageIcon, X, Trash2, Search } from 'lucide-react';
 
 /** Backend stores status as string names — these are the valid values */
 const STATUS_OPTIONS = [
@@ -38,6 +38,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
   const [toast, setToast] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [fullScreenImage, setFullScreenImage] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getShortId = (id) => {
     if (!id) return '';
@@ -91,6 +92,17 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
       setDeletingId(null);
     }
   };
+
+  // Apply search filter (on top of the status-filtered tickets prop)
+  const searchedTickets = (() => {
+    if (!searchQuery.trim()) return tickets;
+    const query = searchQuery.toLowerCase().replace('#', '');
+    return tickets.filter((ticket) => {
+      const shortId = ticket.id ? `t-${ticket.id.substring(0, 8)}`.toLowerCase() : '';
+      const tenantName = (ticket.tenantName || '').toLowerCase();
+      return shortId.includes(query) || tenantName.includes(query);
+    });
+  })();
 
   if (tickets.length === 0) {
     return (
@@ -269,6 +281,34 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
         .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
       `}</style>
 
+      {/* Search Bar */}
+      <div className="mb-4 flex items-center gap-3">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Ticket ID or Tenant Name..."
+            className="w-full pl-10 pr-10 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] bg-white transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <span className="text-xs text-gray-500 whitespace-nowrap shrink-0">
+            {searchedTickets.length} result{searchedTickets.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -289,7 +329,25 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {tickets.map((ticket, index) => (
+              {searchedTickets.length === 0 ? (
+                <tr>
+                  <td colSpan={11} className="px-5 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <Search className="w-10 h-10 text-gray-200" />
+                      <p className="text-sm font-medium text-gray-500">
+                        No tickets match <span className="font-semibold text-gray-700">&quot;{searchQuery}&quot;</span>
+                      </p>
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="text-xs text-[#1E3A8A] hover:underline"
+                      >
+                        Clear search
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                searchedTickets.map((ticket, index) => (
                 <tr
                   key={ticket.id}
                   className="hover:bg-blue-50/30 transition-colors duration-150"
@@ -415,7 +473,8 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                     )}
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
