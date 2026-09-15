@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartSpace.API\SmartSpace.API.csproj" />
+    <ProjectReference Include="../SmartSpace.API/SmartSpace.API.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,29 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Building2, ShieldCheck, CheckCircle2, Lock } from 'lucide-react';
 
 export default function PublicFooter() {
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
+  const handleAnchorClick = (anchorId) => {
+    if (isHome) {
+      const el = document.getElementById(anchorId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate(`/#${anchorId}`);
+      setTimeout(() => {
+        const el = document.getElementById(anchorId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
 
   return (
     <footer className="bg-white border-t border-gray-200 mt-auto">
@@ -46,14 +66,22 @@ export default function PublicFooter() {
             </h3>
             <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <a href="/#features" className="text-gray-600 hover:text-[#1E3A8A] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => handleAnchorClick('features')}
+                  className="text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer text-left"
+                >
                   Key Features
-                </a>
+                </button>
               </li>
               <li>
-                <a href="/#solutions" className="text-gray-600 hover:text-[#1E3A8A] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => handleAnchorClick('solutions')}
+                  className="text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer text-left"
+                >
                   Who It Is For
-                </a>
+                </button>
               </li>
               <li>
                 <Link to="/about" className="text-gray-600 hover:text-[#1E3A8A] transition-colors">
