@@ -4,4 +4,5 @@ public interface IFileStorageService
 {
     /// <summary>Saves the uploaded file and returns a URL/path the client can use to retrieve it.</summary>
     Task<string> SaveFileAsync(IFormFile file, Guid ticketId);
+    Task<string> SavePropertyImageAsync(IFormFile file, Guid propertyId);
 }

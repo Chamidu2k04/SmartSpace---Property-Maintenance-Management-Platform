@@ -18,6 +18,12 @@ public class CloudinaryFileStorageService : IFileStorageService
     }
 
     public async Task<string> SaveFileAsync(IFormFile file, Guid ticketId)
+        => await UploadImageAsync(file, $"smartspace/tickets/{ticketId}");
+
+    public async Task<string> SavePropertyImageAsync(IFormFile file, Guid propertyId)
+        => await UploadImageAsync(file, $"smartspace/properties/{propertyId}");
+
+    private async Task<string> UploadImageAsync(IFormFile file, string folder)
     {
         if (file == null || file.Length == 0)
             throw new ArgumentException("File is empty.");
@@ -27,7 +33,7 @@ public class CloudinaryFileStorageService : IFileStorageService
         var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(file.FileName, stream),
-            Folder = $"smartspace/tickets/{ticketId}",
+            Folder = folder,
             Transformation = new Transformation().Quality("auto").FetchFormat("auto")
         };
 

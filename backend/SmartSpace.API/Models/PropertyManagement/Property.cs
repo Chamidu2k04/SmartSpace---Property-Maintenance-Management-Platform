@@ -6,6 +6,7 @@ public class Property
     public string Name { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
 
     public List<Unit> Units { get; set; } = new();
 }
