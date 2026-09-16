@@ -5,6 +5,7 @@ import 'technician_schedule_screen.dart';
 import 'quotation_approval_screen.dart';
 import 'technician_management_screen.dart';
 import 'maintenance_approvals_screen.dart';
+import 'property_management_screen.dart';
 
 /// Dedicated Dashboard Screen for Property Managers (FR9, FR10 & Technician Management)
 class PropertyManagerDashboard extends StatefulWidget {
@@ -24,6 +25,7 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
     QuotationApprovalScreen(isEmbedded: true),
     TechnicianManagementScreen(isEmbedded: true),
     MaintenanceApprovalsScreen(),
+    PropertyManagementScreen(),
   ];
 
   @override
@@ -43,7 +45,7 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
                   ? Icons.calendar_month
                   : (_currentTabIndex == 1
                       ? Icons.receipt_long
-                      : (_currentTabIndex == 2 ? Icons.engineering : Icons.build)),
+                      : (_currentTabIndex == 2 ? Icons.engineering : (_currentTabIndex == 3 ? Icons.build : Icons.apartment))),
               size: 22,
             ),
             const SizedBox(width: 10),
@@ -54,7 +56,7 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
                       ? 'Quotations & Approvals'
                       : (_currentTabIndex == 2
                           ? 'Technician Management Directory'
-                          : 'Maintenance Requests')),
+                          : (_currentTabIndex == 3 ? 'Maintenance Requests' : 'Properties'))),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ],
@@ -97,6 +99,11 @@ class _PropertyManagerDashboardState extends State<PropertyManagerDashboard> {
             icon: Icon(Icons.build_outlined),
             selectedIcon: Icon(Icons.build, color: _deepIndigo),
             label: 'Maintenance',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.apartment_outlined),
+            selectedIcon: Icon(Icons.apartment, color: _deepIndigo),
+            label: 'Properties',
           ),
         ],
       ),
