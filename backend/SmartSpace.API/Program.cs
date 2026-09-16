@@ -36,8 +36,6 @@ builder.Services.AddScoped<SmartSpace.API.Services.PropertyManagement.ILeaseServ
 // Maintenance Request Management (Member 2)
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.ITicketService,
     SmartSpace.API.Services.MaintenanceTickets.TicketService>();
-// builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IFileStorageService,
-//     SmartSpace.API.Services.MaintenanceTickets.LocalFileStorageService>();
 builder.Services.AddScoped<SmartSpace.API.Services.MaintenanceTickets.IFileStorageService,
     SmartSpace.API.Services.Common.CloudinaryFileStorageService>();
 // Email notification service for resolved ticket alerts (Member 2 — scoped to MaintenanceTickets)
