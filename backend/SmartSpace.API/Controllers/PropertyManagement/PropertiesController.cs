@@ -23,11 +23,22 @@ public class PropertiesController : ControllerBase
     /// </summary>
     [HttpPost]
     [Authorize(Roles = nameof(UserRole.PropertyManager))]
-    public async Task<ActionResult<PropertyResponseDto>> CreateProperty([FromBody] CreatePropertyRequestDto request)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<PropertyResponseDto>> CreateProperty([FromForm] CreatePropertyRequestDto request)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
+        }
+
+        if (request.Image is not null && !request.Image.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { message = "Please upload a valid property image." });
+        }
+
+        if (request.Image is not null && request.Image.Length > 10 * 1024 * 1024)
+        {
+            return BadRequest(new { message = "The property image must be 10 MB or smaller." });
         }
 
         var property = await _propertyService.CreatePropertyAsync(request);
@@ -86,8 +97,14 @@ public class PropertiesController : ControllerBase
 
     [HttpPut("{id:guid}")]
     [Authorize(Roles = nameof(UserRole.PropertyManager))]
-    public async Task<ActionResult<PropertyResponseDto>> UpdateProperty(Guid id, [FromBody] UpdatePropertyRequestDto request)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<PropertyResponseDto>> UpdateProperty(Guid id, [FromForm] UpdatePropertyRequestDto request)
     {
+        if (request.Image is not null && !request.Image.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+            return BadRequest(new { message = "Please upload a valid property image." });
+        if (request.Image is not null && request.Image.Length > 10 * 1024 * 1024)
+            return BadRequest(new { message = "The property image must be 10 MB or smaller." });
+
         try { return Ok(await _propertyService.UpdatePropertyAsync(id, request)); }
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }

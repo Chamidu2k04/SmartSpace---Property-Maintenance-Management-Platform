@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, Building2, Check, Plus, Trash2, X } from 'lucide-react';
+import { AlertCircle, Building2, Check, ImagePlus, Plus, Trash2, X } from 'lucide-react';
 
 const emptyUnit = () => ({ unitNumber: '', floor: '0' });
 
 export default function PropertyModal({ isOpen, onClose, onSubmit, isSaving }) {
-  const [form, setForm] = useState({ name: '', address: '', city: '', initialUnits: [emptyUnit()] });
+  const [form, setForm] = useState({ name: '', address: '', city: '', image: null, initialUnits: [emptyUnit()] });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ name: '', address: '', city: '', initialUnits: [emptyUnit()] });
+      setForm({ name: '', address: '', city: '', image: null, initialUnits: [emptyUnit()] });
       setErrors({});
       setServerError('');
     }
@@ -31,6 +31,8 @@ export default function PropertyModal({ isOpen, onClose, onSubmit, isSaving }) {
     if (!form.name.trim()) next.name = 'Property name is required.';
     if (!form.address.trim()) next.address = 'Address is required.';
     if (!form.city.trim()) next.city = 'City is required.';
+    if (form.image && !form.image.type.startsWith('image/')) next.image = 'Choose a valid image file.';
+    else if (form.image.size > 10 * 1024 * 1024) next.image = 'Image must be 10 MB or smaller.';
     form.initialUnits.forEach((unit, index) => {
       if (!unit.unitNumber.trim()) next[`unit-${index}`] = 'Unit number is required.';
       if (Number(unit.floor) < 0) next[`floor-${index}`] = 'Floor cannot be negative.';
@@ -48,6 +50,7 @@ export default function PropertyModal({ isOpen, onClose, onSubmit, isSaving }) {
         name: form.name.trim(),
         address: form.address.trim(),
         city: form.city.trim(),
+        image: form.image,
         initialUnits: form.initialUnits.map((unit) => ({ unitNumber: unit.unitNumber.trim(), floor: Number(unit.floor) })),
       });
       onClose();
@@ -87,6 +90,14 @@ export default function PropertyModal({ isOpen, onClose, onSubmit, isSaving }) {
               <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputClass(errors.city)} placeholder="Colombo" />
             </Field>
           </div>
+
+          <Field label="Property Image (optional)" error={errors.image}>
+            <label className={`flex items-center gap-3 p-4 rounded-lg border border-dashed cursor-pointer hover:bg-blue-50/40 ${errors.image ? 'border-red-300 bg-red-50/30' : 'border-gray-300'}`}>
+              <ImagePlus className="w-6 h-6 text-[#1E3A8A]" />
+              <span className="text-sm text-gray-600">{form.image ? form.image.name : 'Choose a JPG, PNG, or WebP image'}</span>
+              <input type="file" accept="image/*" className="sr-only" onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })} />
+            </label>
+          </Field>
 
           <div className="border-t border-gray-100 pt-5">
             <div className="flex items-center justify-between mb-3">
