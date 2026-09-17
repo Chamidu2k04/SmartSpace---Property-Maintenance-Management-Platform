@@ -53,6 +53,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Property>(entity =>
         {
             entity.HasKey(p => p.Id);
+            entity.Property(p => p.ImageUrl).HasMaxLength(2048);
 
             entity.HasMany(p => p.Units)
                   .WithOne(u => u.Property)

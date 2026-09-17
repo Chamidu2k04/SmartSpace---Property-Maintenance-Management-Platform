@@ -13,6 +13,8 @@ public class CreatePropertyRequestDto
     [Required(ErrorMessage = "City is required.")]
     public string City { get; set; } = string.Empty;
 
+    public IFormFile? Image { get; set; }
+
     public List<CreateUnitSubRequestDto>? InitialUnits { get; set; }
 }
 
