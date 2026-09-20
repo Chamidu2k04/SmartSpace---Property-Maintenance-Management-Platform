@@ -32,7 +32,7 @@ export default function PropertyModal({ isOpen, onClose, onSubmit, isSaving }) {
     if (!form.address.trim()) next.address = 'Address is required.';
     if (!form.city.trim()) next.city = 'City is required.';
     if (form.image && !form.image.type.startsWith('image/')) next.image = 'Choose a valid image file.';
-    else if (form.image.size > 10 * 1024 * 1024) next.image = 'Image must be 10 MB or smaller.';
+    else if (form.image && form.image.size > 10 * 1024 * 1024) next.image = 'Image must be 10 MB or smaller.';
     form.initialUnits.forEach((unit, index) => {
       if (!unit.unitNumber.trim()) next[`unit-${index}`] = 'Unit number is required.';
       if (Number(unit.floor) < 0) next[`floor-${index}`] = 'Floor cannot be negative.';

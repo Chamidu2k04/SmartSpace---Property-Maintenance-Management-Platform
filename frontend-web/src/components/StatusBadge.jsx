@@ -31,6 +31,12 @@ const STATUS_CONFIG = {
     border: 'rgba(16, 185, 129, 0.20)',
     label: 'Completed',
   },
+  ClosedNoAction: {
+    color: '#64748B',
+    bg: 'rgba(100, 116, 139, 0.10)',
+    border: 'rgba(100, 116, 139, 0.20)',
+    label: 'Closed — No Action',
+  },
 };
 
 export default function StatusBadge({ status }) {
