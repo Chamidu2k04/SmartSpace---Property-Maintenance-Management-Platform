@@ -45,6 +45,7 @@ import Inventory from './pages/Inventory';
 import Scheduling from './pages/Scheduling';
 import Properties from './pages/Properties';
 import AdminUserDashboard from './pages/AdminUserDashboard';
+import AiAuditHistory from './pages/AiAuditHistory';
 
 // Tenant Maintenance Pages (Member 2 — Maintenance Request Management)
 import TenantMaintenance   from './pages/TenantMaintenance';
@@ -155,6 +156,19 @@ export default function App() {
               <AdminLayout>
                 <RequireRole allowedRoles={['PropertyManager']}>
                   <MaintenanceApprovals />
+                </RequireRole>
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ai-audit"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <RequireRole allowedRoles={['PropertyManager']}>
+                  <AiAuditHistory />
                 </RequireRole>
               </AdminLayout>
             </ProtectedRoute>

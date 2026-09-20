@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import UrgencyBadge from './UrgencyBadge';
 import { updateTicketStatus, deleteTicket } from '../services/ticketService';
-import { ChevronDown, Loader2, CheckCircle2, AlertTriangle, Image as ImageIcon, X, Trash2, Search } from 'lucide-react';
+import { ChevronDown, Loader2, CheckCircle2, AlertTriangle, Image as ImageIcon, X, Trash2, Search, Sparkles, Eye } from 'lucide-react';
 
 /** Backend stores status as string names — these are the valid values */
 const STATUS_OPTIONS = [
@@ -11,6 +11,7 @@ const STATUS_OPTIONS = [
   { value: 2, label: 'PendingApproval' },
   { value: 3, label: 'Scheduled' },
   { value: 4, label: 'Completed' },
+  { value: 5, label: 'ClosedNoAction' },
 ];
 
 /** Maps status string name → enum int value for the PATCH request */
@@ -20,6 +21,7 @@ const STATUS_NAME_TO_INT = {
   PendingApproval: 2,
   Scheduled: 3,
   Completed: 4,
+  ClosedNoAction: 5,
 };
 
 /** Maps enum int value → status string name for display */
@@ -29,9 +31,10 @@ const STATUS_INT_TO_NAME = {
   2: 'PendingApproval',
   3: 'Scheduled',
   4: 'Completed',
+  5: 'ClosedNoAction',
 };
 
-export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted }) {
+export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted, onAnalyze, onReview, aiWorkingId }) {
   const [updatingId, setUpdatingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // { id, unitNumber }
@@ -446,7 +449,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                           >
                             {STATUS_OPTIONS.map((opt) => (
                               <option key={opt.value} value={opt.value}>
-                                {opt.label === 'PendingApproval' ? 'Pending Approval' : opt.label}
+                                {opt.label === 'PendingApproval' ? 'Pending Approval' : opt.label === 'ClosedNoAction' ? 'Closed — No Action' : opt.label}
                               </option>
                             ))}
                           </select>
@@ -458,6 +461,9 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
 
                   {/* Delete Action */}
                   <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                    {ticket.status === 'Submitted' && <button disabled={aiWorkingId === ticket.id} onClick={() => onAnalyze?.(ticket)} title="Analyze with AI" className="p-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 disabled:opacity-50">{aiWorkingId === ticket.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}</button>}
+                    {ticket.status === 'PendingApproval' && <button disabled={aiWorkingId === ticket.id} onClick={() => onReview?.(ticket)} title="Review AI proposal" className="p-2 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50">{aiWorkingId === ticket.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}</button>}
                     {deletingId === ticket.id ? (
                       <div className="flex items-center justify-center">
                         <Loader2 className="w-4 h-4 animate-spin text-[#EF4444]" />
@@ -471,6 +477,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
+                    </div>
                   </td>
                 </tr>
                 ))

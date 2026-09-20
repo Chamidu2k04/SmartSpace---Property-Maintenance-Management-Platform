@@ -24,7 +24,7 @@ export async function getTickets(statusFilter = null) {
  * PATCH /api/tickets/{id}/status
  *
  * @param {string} ticketId - The GUID of the ticket
- * @param {number} newStatus - The new TicketStatus enum value (0-4)
+ * @param {number} newStatus - The new TicketStatus enum value (0-5)
  * @returns {Promise<void>}
  */
 export async function updateTicketStatus(ticketId, newStatus) {

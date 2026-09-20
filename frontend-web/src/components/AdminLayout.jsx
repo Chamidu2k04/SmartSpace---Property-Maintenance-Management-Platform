@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { Building2, LayoutDashboard, User, LogOut, Shield, Wrench, Package, Calendar, Users } from 'lucide-react';
+import { Building2, LayoutDashboard, User, LogOut, Shield, Wrench, Package, Calendar, Users, ScrollText } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const { user, logout } = useAuthStore();
@@ -42,6 +42,7 @@ export default function AdminLayout({ children }) {
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       { label: 'Properties & Leases', path: '/properties', icon: Building2 },
       { label: 'Maintenance', path: '/maintenance', icon: Wrench },
+      { label: 'AI Audit History', path: '/ai-audit', icon: ScrollText },
       { label: 'Scheduling & Quotation', path: '/scheduling', icon: Calendar },
       { label: 'User Profile', path: '/profile', icon: User },
     ];
