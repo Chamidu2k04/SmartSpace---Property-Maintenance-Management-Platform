@@ -1,52 +1,40 @@
-"""
-SmartSpace AI Service
-=====================
-FastAPI application that exposes AI-powered endpoints for:
-  - Maintenance triage (classify issue severity)
-  - Lease clause checking
-  - Repair cost estimation
-
-Start with: uvicorn main:app --reload
-Docs at:    http://localhost:8000/docs
-"""
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    title="SmartSpace AI Service",
-    description="Agentic AI backend for the SmartSpace Property & Maintenance Management Platform",
-    version="0.1.0",
-)
+from core.config import get_settings
+from core.database import database
+from core.errors import register_exception_handlers
+from routers.ai import router as ai_router
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CORS — allow all origins during development; restrict in production
-# ─────────────────────────────────────────────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await database.connect()
+    yield
+    await database.disconnect()
+
+
+settings = get_settings()
+app = FastAPI(
+    title="SmartSpace Agentic AI Service",
+    description="Four-agent maintenance workflow implemented with LangChain and LangGraph.",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    max_age=600,
 )
+register_exception_handlers(app)
+app.include_router(ai_router, prefix="/api/ai", tags=["Agentic AI"])
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Health Check
-# ─────────────────────────────────────────────────────────────────────────────
 @app.get("/health", tags=["System"])
-async def health_check():
-    """
-    Returns a simple OK status.
-    Used by load-balancers and CI pipelines to verify the service is running.
-    """
-    return {"status": "ok", "service": "SmartSpace AI Service", "version": "0.1.0"}
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TODO: Register routers for each AI feature here, e.g.
-#   from routers import triage, lease_check, cost_estimate
-#   app.include_router(triage.router,       prefix="/ai/triage",     tags=["AI Triage"])
-#   app.include_router(lease_check.router,  prefix="/ai/lease",      tags=["AI Lease"])
-#   app.include_router(cost_estimate.router,prefix="/ai/cost",       tags=["AI Cost"])
-# ─────────────────────────────────────────────────────────────────────────────
+async def health_check() -> dict[str, str]:
+    return {"status": "ok", "service": "SmartSpace Agentic AI Service", "version": "1.0.0"}
