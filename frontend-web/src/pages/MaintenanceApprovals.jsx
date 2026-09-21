@@ -76,14 +76,18 @@ export default function MaintenanceApprovals() {
   const openProposal = async (ticket, runAnalysis = false) => {
     setAiWorkingId(ticket.id); setAiError(null);
     let pollTimer;
+    let pollInProgress = false;
     try {
       let proposal;
       if (runAnalysis) {
         const runId = crypto.randomUUID();
         setWorkflowProgress({ run_id: runId, current_step: 'triage', execution_history: [] });
         pollTimer = window.setInterval(async () => {
+          if (pollInProgress) return;
+          pollInProgress = true;
           try { setWorkflowProgress(await getWorkflowStatus(ticket.id, runId)); } catch { /* first log may not exist yet */ }
-        }, 750);
+          finally { pollInProgress = false; }
+        }, 1500);
         proposal = await planMaintenance(ticket.id, null, runId);
         setWorkflowProgress(proposal);
       } else {
