@@ -9,4 +9,3 @@ public enum TicketStatus
     Completed,
     ClosedNoAction
 }
-}
