@@ -37,9 +37,14 @@ public class TechnicianService : ITechnicianService
         Guid targetUserId;
 
         // Check if user with this email already exists in Users table
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
         if (existingUser != null)
         {
+            if (existingUser.Role != UserRole.Technician)
+                throw new ArgumentException($"The account '{normalizedEmail}' is not a Technician account.");
+            if (await _context.TechnicianProfiles.AnyAsync(x => x.UserId == existingUser.Id))
+                throw new ArgumentException($"A technician profile already exists for '{normalizedEmail}'.");
             targetUserId = existingUser.Id;
         }
         else
@@ -48,8 +53,8 @@ public class TechnicianService : ITechnicianService
             var newUser = new User
             {
                 Id = Guid.NewGuid(),
-                Email = dto.Email,
-                FullName = dto.FullName,
+                Email = normalizedEmail,
+                FullName = dto.FullName.Trim(),
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(string.IsNullOrWhiteSpace(dto.Password) ? "Password123!" : dto.Password),
                 Role = UserRole.Technician,
                 CreatedAt = DateTime.UtcNow

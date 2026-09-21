@@ -5,7 +5,7 @@ public class AgentExecutionLog
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid TicketId { get; set; }
 
-    /// <summary>e.g. "TriageAgent", "PolicyAgent", "InventoryAgent", "SchedulingAgent"</summary>
+    /// <summary>Canonical roles: TriagePlanningAgent, LeasePolicyAgent, InventorySearchAgent, SchedulingQuotationAgent, DeterministicValidator, HumanApproval.</summary>
     public string AgentRole { get; set; } = string.Empty;
 
     public string ActionTaken { get; set; } = string.Empty;

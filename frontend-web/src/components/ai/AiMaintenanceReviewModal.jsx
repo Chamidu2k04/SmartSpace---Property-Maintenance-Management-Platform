@@ -13,6 +13,8 @@ export default function AiMaintenanceReviewModal({ ticket, proposal, busy, onClo
   const noActionReview = proposal?.workflow_outcome === 'NoActionReview';
   const tenantReview = proposal?.workflow_outcome === 'TenantResponsibilityReview';
   const decisionOnly = noActionReview || tenantReview;
+  const submittedUrgency = proposal?.submitted_urgency || ticket?.urgencyLevel;
+  const urgencyChanged = submittedUrgency && triage?.urgency_level && submittedUrgency !== triage.urgency_level;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={busy ? undefined : onClose}>
@@ -28,7 +30,7 @@ export default function AiMaintenanceReviewModal({ ticket, proposal, busy, onClo
           </div>}
 
           {!decisionOnly && <div className="grid md:grid-cols-2 gap-4">
-            <Card title="Triage & repair plan"><Row label="Trade" value={triage?.trade_required} /><Row label="Urgency" value={triage?.urgency_level} /><p className="text-sm text-gray-600 mt-3">{triage?.triage_summary}</p><ol className="list-decimal ml-5 mt-3 text-sm text-gray-600 space-y-1">{triage?.planned_steps?.map((step) => <li key={step}>{step}</li>)}</ol></Card>
+            <Card title="Triage & repair plan"><Row label="Trade" value={triage?.trade_required} /><Row label="Tenant-submitted urgency" value={submittedUrgency} /><Row label="AI-assessed urgency" value={triage?.urgency_level} />{urgencyChanged && <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2"><strong>Urgency changed:</strong> {triage?.urgency_adjustment_reason}</p>}<p className="text-sm text-gray-600 mt-3">{triage?.triage_summary}</p><ol className="list-decimal ml-5 mt-3 text-sm text-gray-600 space-y-1">{triage?.planned_steps?.map((step) => <li key={step}>{step}</li>)}</ol></Card>
             <Card title="Technician & schedule"><Row label="Technician" value={scheduling?.technician_name} /><Row label="Date" value={scheduling?.proposed_date} /><Row label="Time" value={`${scheduling?.proposed_start_time || ''} – ${scheduling?.proposed_end_time || ''}`} /><Row label="Estimated hours" value={scheduling?.estimated_hours} /></Card>
             <Card title="Proposed inventory"><div className="space-y-2">{inventory?.inventory_items?.length ? inventory.inventory_items.map((item) => <div key={item.item_id} className="flex justify-between text-sm"><span>{item.item_name} × {item.quantity}</span><span className="font-semibold">${money(item.subtotal)}</span></div>) : <p className="text-sm text-gray-500">No parts proposed.</p>}</div></Card>
             <Card title="Quotation"><Row label="Parts" value={`$${money(inventory?.estimated_parts_cost)}`} /><Row label="Labour" value={`$${money(scheduling?.estimated_labor_cost)}`} /><div className="border-t mt-3 pt-3"><Row label="Estimated total" value={`$${money(scheduling?.total_estimated_cost)}`} strong /></div></Card>
