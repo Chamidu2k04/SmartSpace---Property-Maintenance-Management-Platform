@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartSpace.API.DTOs.Scheduling;
@@ -77,15 +78,39 @@ public class TechniciansController : ControllerBase
     /// Update technician information (PUT /api/technicians/{id}).
     /// </summary>
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "PropertyManager")]
+    [Authorize(Roles = "PropertyManager,Technician")]
     [ProducesResponseType(typeof(TechnicianProfileResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TechnicianProfileResponseDto>> UpdateTechnician(Guid id, [FromBody] UpdateTechnicianProfileDto dto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
+        }
+
+        // Preserve the existing technician self-service profile screen while
+        // preventing one technician from updating another technician's profile.
+        // Property Managers retain their existing ability to update any profile.
+        if (User.IsInRole("Technician") && !User.IsInRole("PropertyManager"))
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdClaim, out var authenticatedUserId))
+            {
+                return Forbid();
+            }
+
+            var requestedTechnician = await _technicianService.GetTechnicianByIdAsync(id);
+            if (requestedTechnician == null)
+            {
+                return NotFound(new { message = $"Technician profile with ID '{id}' was not found." });
+            }
+
+            if (requestedTechnician.UserId != authenticatedUserId)
+            {
+                return Forbid();
+            }
         }
 
         try
