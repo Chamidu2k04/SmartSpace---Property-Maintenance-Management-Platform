@@ -1,0 +1,36 @@
+{
+  "policy_version": "1.0",
+  "policy_name": "SmartSpace Standard Maintenance Policy",
+  "classifications": [
+    {
+      "liability": "Landlord Responsibility (Wear & Tear)",
+      "policy_clause": "Standard Maintenance Policy: Normal Wear, Structural Defects, and Installed-System Failure",
+      "conditions": [
+        "Normal aging or ordinary continuous use",
+        "Structural defects or deterioration",
+        "Internal plumbing or electrical faults",
+        "Roof or foundation deterioration",
+        "Installed appliance failure without evidence of misuse"
+      ]
+    },
+    {
+      "liability": "Tenant Responsibility (Negligence)",
+      "policy_clause": "Standard Maintenance Policy: Tenant-Caused Damage, Misuse, and Failure to Mitigate",
+      "conditions": [
+        "Direct impact or accidental breakage",
+        "Improper operation or foreign-object blockage",
+        "Pet or deliberate damage",
+        "Unauthorized alteration",
+        "Failure to mitigate preventable damage"
+      ]
+    }
+  ],
+  "low_confidence_requires_manager_review": true,
+  "recommendation_is_not_legal_judgment": true,
+  "fabricated_lease_citations_are_forbidden": true,
+  "workflow_rules": [
+    "A Tenant Responsibility recommendation pauses landlord maintenance planning pending Property Manager confirmation.",
+    "A recommendation must never automatically close a ticket, charge a tenant, or deduct a deposit.",
+    "Rejecting a recommendation returns the ticket for controlled correction or re-analysis."
+  ]
+}

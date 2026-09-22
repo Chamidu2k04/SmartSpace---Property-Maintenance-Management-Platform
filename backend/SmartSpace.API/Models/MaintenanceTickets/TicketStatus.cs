@@ -6,5 +6,6 @@ public enum TicketStatus
     Analyzing,
     PendingApproval,
     Scheduled,
-    Completed
+    Completed,
+    ClosedNoAction
 }
