@@ -2,16 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using SmartSpace.API.Data;
 using SmartSpace.API.DTOs.PropertyManagement;
 using SmartSpace.API.Models.PropertyManagement;
+using SmartSpace.API.Services.MaintenanceTickets;
 
 namespace SmartSpace.API.Services.PropertyManagement;
 
 public class PropertyService : IPropertyService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IFileStorageService _fileStorage;
 
-    public PropertyService(ApplicationDbContext context)
+    public PropertyService(ApplicationDbContext context, IFileStorageService fileStorage)
     {
         _context = context;
+        _fileStorage = fileStorage;
     }
 
     public async Task<PropertyResponseDto> CreatePropertyAsync(CreatePropertyRequestDto request)
@@ -23,6 +26,11 @@ public class PropertyService : IPropertyService
             Address = request.Address,
             City = request.City
         };
+
+        if (request.Image is not null)
+        {
+            property.ImageUrl = await _fileStorage.SavePropertyImageAsync(request.Image, property.Id);
+        }
 
         if (request.InitialUnits != null && request.InitialUnits.Count > 0)
         {
@@ -125,6 +133,10 @@ public class PropertyService : IPropertyService
         property.Name = request.Name.Trim();
         property.Address = request.Address.Trim();
         property.City = request.City.Trim();
+        if (request.Image is not null)
+        {
+            property.ImageUrl = await _fileStorage.SavePropertyImageAsync(request.Image, property.Id);
+        }
         await _context.SaveChangesAsync();
         return MapToPropertyResponseDto(property);
     }
@@ -190,6 +202,7 @@ public class PropertyService : IPropertyService
             Name = property.Name,
             Address = property.Address,
             City = property.City,
+            ImageUrl = property.ImageUrl,
             Units = property.Units.Select(u => new UnitResponseDto
             {
                 Id = u.Id,

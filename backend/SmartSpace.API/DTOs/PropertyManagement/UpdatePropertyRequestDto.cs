@@ -12,4 +12,6 @@ public class UpdatePropertyRequestDto
 
     [Required(ErrorMessage = "City is required.")]
     public string City { get; set; } = string.Empty;
+
+    public IFormFile? Image { get; set; }
 }
