@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getTickets } from '../services/ticketService';
 import TicketsTable from '../components/TicketsTable';
+import AiMaintenanceReviewModal from '../components/ai/AiMaintenanceReviewModal';
+import AiWorkflowProgress from '../components/ai/AiWorkflowProgress';
+import { approveMaintenanceProposal, getMaintenanceProposal, getWorkflowStatus, planMaintenance, rejectMaintenanceProposal } from '../services/aiService';
 import {
   ClipboardList,
-  Loader2,
   AlertTriangle,
   RefreshCw,
   FileText,
@@ -20,6 +22,7 @@ const FILTER_TABS = [
   { key: 'PendingApproval', label: 'Pending', icon: FileText },
   { key: 'Scheduled', label: 'Scheduled', icon: Clock },
   { key: 'Completed', label: 'Completed', icon: CheckCircle2 },
+  { key: 'ClosedNoAction', label: 'No Action', icon: CheckCircle2 },
 ];
 
 export default function MaintenanceApprovals() {
@@ -27,6 +30,10 @@ export default function MaintenanceApprovals() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState(null);
+  const [aiWorkingId, setAiWorkingId] = useState(null);
+  const [review, setReview] = useState(null);
+  const [aiError, setAiError] = useState(null);
+  const [workflowProgress, setWorkflowProgress] = useState(null);
 
   const fetchTickets = useCallback(async (statusFilter = null) => {
     setIsLoading(true);
@@ -66,6 +73,51 @@ export default function MaintenanceApprovals() {
     fetchTickets(activeFilter);
   };
 
+  const openProposal = async (ticket, runAnalysis = false) => {
+    setAiWorkingId(ticket.id); setAiError(null);
+    let pollTimer;
+    let pollInProgress = false;
+    try {
+      let proposal;
+      if (runAnalysis) {
+        const runId = crypto.randomUUID();
+        setWorkflowProgress({ run_id: runId, current_step: 'triage', execution_history: [] });
+        pollTimer = window.setInterval(async () => {
+          if (pollInProgress) return;
+          pollInProgress = true;
+          try { setWorkflowProgress(await getWorkflowStatus(ticket.id, runId)); } catch { /* first log may not exist yet */ }
+          finally { pollInProgress = false; }
+        }, 1500);
+        proposal = await planMaintenance(ticket.id, null, runId);
+        setWorkflowProgress(proposal);
+      } else {
+        proposal = await getMaintenanceProposal(ticket.id);
+      }
+      setReview({ ticket, proposal });
+      await fetchTickets(activeFilter);
+    } catch (err) { setAiError(err.message); }
+    finally {
+      if (pollTimer) window.clearInterval(pollTimer);
+      setAiWorkingId(null);
+      setWorkflowProgress(null);
+    }
+  };
+
+  const approveProposal = async () => {
+    setAiWorkingId(review.ticket.id); setAiError(null);
+    try { await approveMaintenanceProposal(review.ticket.id); setReview(null); await fetchTickets(activeFilter); }
+    catch (err) { setAiError(err.message); }
+    finally { setAiWorkingId(null); }
+  };
+
+  const rejectProposal = async (reason) => {
+    setAiWorkingId(review.ticket.id); setAiError(null);
+    try { await rejectMaintenanceProposal(review.ticket.id, reason); setReview(null); await fetchTickets(activeFilter); }
+    catch (err) { setAiError(err.message); }
+    finally { setAiWorkingId(null); }
+  };
+
+
   // Compute stats from current ticket data
   const stats = {
     total: tickets.length,
@@ -73,7 +125,7 @@ export default function MaintenanceApprovals() {
     inProgress: tickets.filter((t) =>
       ['Analyzing', 'PendingApproval', 'Scheduled'].includes(t.status)
     ).length,
-    completed: tickets.filter((t) => t.status === 'Completed').length,
+    completed: tickets.filter((t) => ['Completed', 'ClosedNoAction'].includes(t.status)).length,
   };
 
   return (
@@ -148,6 +200,7 @@ export default function MaintenanceApprovals() {
       </div>
 
       {/* Content Area */}
+      {aiError && <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 flex items-center gap-2"><AlertTriangle className="w-4 h-4" />{aiError}</div>}
       {isLoading ? (
         <LoadingSkeleton />
       ) : error ? (
@@ -157,8 +210,13 @@ export default function MaintenanceApprovals() {
           tickets={tickets}
           onTicketUpdated={handleTicketUpdated}
           onTicketDeleted={handleTicketDeleted}
+          onAnalyze={(ticket) => openProposal(ticket, true)}
+          onReview={(ticket) => openProposal(ticket, false)}
+          aiWorkingId={aiWorkingId}
         />
       )}
+      {review && <AiMaintenanceReviewModal ticket={review.ticket} proposal={review.proposal} busy={aiWorkingId === review.ticket.id} onClose={() => setReview(null)} onApprove={approveProposal} onReject={rejectProposal} />}
+      {aiWorkingId && workflowProgress && !review && <AiWorkflowProgress progress={workflowProgress} />}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartSpace.API.DTOs.Scheduling;
 using SmartSpace.API.Services.Scheduling;
@@ -9,6 +11,7 @@ namespace SmartSpace.API.Controllers.Scheduling;
 /// </summary>
 [ApiController]
 [Route("api/technicians")]
+[Authorize(Roles = "PropertyManager,Technician")]
 public class TechniciansController : ControllerBase
 {
     private readonly ITechnicianService _technicianService;
@@ -22,6 +25,7 @@ public class TechniciansController : ControllerBase
     /// Add a new technician profile (POST /api/technicians).
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "PropertyManager")]
     [ProducesResponseType(typeof(TechnicianProfileResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TechnicianProfileResponseDto>> CreateTechnician([FromBody] CreateTechnicianProfileDto dto)
@@ -74,14 +78,39 @@ public class TechniciansController : ControllerBase
     /// Update technician information (PUT /api/technicians/{id}).
     /// </summary>
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "PropertyManager,Technician")]
     [ProducesResponseType(typeof(TechnicianProfileResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TechnicianProfileResponseDto>> UpdateTechnician(Guid id, [FromBody] UpdateTechnicianProfileDto dto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
+        }
+
+        // Preserve the existing technician self-service profile screen while
+        // preventing one technician from updating another technician's profile.
+        // Property Managers retain their existing ability to update any profile.
+        if (User.IsInRole("Technician") && !User.IsInRole("PropertyManager"))
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdClaim, out var authenticatedUserId))
+            {
+                return Forbid();
+            }
+
+            var requestedTechnician = await _technicianService.GetTechnicianByIdAsync(id);
+            if (requestedTechnician == null)
+            {
+                return NotFound(new { message = $"Technician profile with ID '{id}' was not found." });
+            }
+
+            if (requestedTechnician.UserId != authenticatedUserId)
+            {
+                return Forbid();
+            }
         }
 
         try
@@ -104,6 +133,7 @@ public class TechniciansController : ControllerBase
     /// Remove or deactivate a technician profile (DELETE /api/technicians/{id}).
     /// </summary>
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "PropertyManager")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTechnician(Guid id)
