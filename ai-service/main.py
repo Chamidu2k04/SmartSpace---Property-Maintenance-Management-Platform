@@ -7,6 +7,7 @@ from core.config import get_settings
 from core.database import database
 from core.errors import register_exception_handlers
 from routers.ai import router as ai_router
+from routers.inventory_assistant import router as inventory_assistant_router
 
 
 @asynccontextmanager
@@ -26,6 +27,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
+    allow_origin_regex=r"^https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,6 +35,7 @@ app.add_middleware(
 )
 register_exception_handlers(app)
 app.include_router(ai_router, prefix="/api/ai", tags=["Agentic AI"])
+app.include_router(inventory_assistant_router, prefix="/api/inventory-assistant", tags=["Inventory Assistant"])
 
 
 @app.get("/health", tags=["System"])

@@ -25,7 +25,28 @@ class ApiConfig {
 
   static String get authUrl => "$baseUrl/auth";
   static String get usersUrl => "$baseUrl/users";
-  static String get inventoryUrl => baseUrl;
   static String get ticketsUrl => baseUrl;
+
+  /// Backend proxy URL for Inventory AI assistant (safest for mobile, avoiding port/network issues)
+  static String get aiProxyUrl => "$baseUrl/inventory/ai-chat";
+
+  /// Dedicated base URL for direct communication with SmartSpace Python AI Service (Port 8000)
+  static String get aiBaseUrl {
+    if (_envBaseUrl.isNotEmpty) {
+      try {
+        final uri = Uri.parse(_envBaseUrl);
+        return "${uri.scheme}://${uri.host}:8000/api";
+      } catch (_) {}
+    }
+    if (kIsWeb) {
+      return "http://localhost:8000/api";
+    }
+    try {
+      if (Platform.isAndroid) {
+        return "http://10.0.2.2:8000/api";
+      }
+    } catch (_) {}
+    return "http://localhost:8000/api";
+  }
 }
 

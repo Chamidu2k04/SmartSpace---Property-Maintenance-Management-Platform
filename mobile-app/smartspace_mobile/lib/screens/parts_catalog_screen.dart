@@ -6,6 +6,7 @@ import '../models/supplier_model.dart';
 import '../providers/auth_provider.dart';
 import '../providers/inventory_provider.dart';
 import '../widgets/qr_part_lookup_widget.dart';
+import '../widgets/inventory_ai_chat_sheet.dart';
 import './standalone_qr_scanner_screen.dart';
 
 class PartsCatalogScreen extends StatefulWidget {
@@ -696,6 +697,15 @@ class _PartsCatalogScreenState extends State<PartsCatalogScreen> {
     );
   }
 
+  void _openAiChatSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const InventoryAiChatSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -709,6 +719,11 @@ class _PartsCatalogScreenState extends State<PartsCatalogScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.smart_toy, color: Colors.amber),
+            tooltip: 'Ask Inventory AI',
+            onPressed: () => _openAiChatSheet(context),
+          ),
           if (_currentTabIndex == 0)
             IconButton(
               icon: const Icon(Icons.qr_code_scanner),
@@ -772,18 +787,37 @@ class _PartsCatalogScreenState extends State<PartsCatalogScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: _primaryNavy,
-        foregroundColor: Colors.white,
-        icon: Icon(_currentTabIndex == 0 ? Icons.add_box_outlined : Icons.add_business_outlined),
-        label: Text(_currentTabIndex == 0 ? 'Add Spare Part' : 'Add Supplier'),
-        onPressed: () {
-          if (_currentTabIndex == 0) {
-            _showAddEditPartBottomSheet(context, null);
-          } else {
-            _showAddEditSupplierBottomSheet(context, null);
-          }
-        },
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Round Floating Action Button for Inventory AI Assistant
+          FloatingActionButton(
+            heroTag: 'inventory_ai_round_fab',
+            backgroundColor: Colors.amber.shade700,
+            foregroundColor: Colors.white,
+            shape: const CircleBorder(),
+            tooltip: 'Inventory AI Assistant',
+            onPressed: () => _openAiChatSheet(context),
+            child: const Icon(Icons.smart_toy, size: 26),
+          ),
+          const SizedBox(height: 12),
+          // Existing Add Spare Part / Add Supplier Button
+          FloatingActionButton.extended(
+            heroTag: 'inventory_add_fab',
+            backgroundColor: _primaryNavy,
+            foregroundColor: Colors.white,
+            icon: Icon(_currentTabIndex == 0 ? Icons.add_box_outlined : Icons.add_business_outlined),
+            label: Text(_currentTabIndex == 0 ? 'Add Spare Part' : 'Add Supplier'),
+            onPressed: () {
+              if (_currentTabIndex == 0) {
+                _showAddEditPartBottomSheet(context, null);
+              } else {
+                _showAddEditSupplierBottomSheet(context, null);
+              }
+            },
+          ),
+        ],
       ),
       body: _currentTabIndex == 0 ? _buildPartsView() : _buildSuppliersView(),
     );
