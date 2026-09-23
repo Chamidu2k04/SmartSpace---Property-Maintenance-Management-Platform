@@ -11,10 +11,11 @@ from agents.base import structured_completion
 from schemas.contracts import InventorySearchRequest, InventorySearchResult
 from validation.agent_results import validate_inventory
 
-# System prompt giving strict instructions to the AI:
+# System prompt :
 # - It can only choose from allow-listed parts passed from the database.
 # - It cannot invent non-existent part IDs or modify prices.
 # - Quantities cannot exceed the available stock.
+
 PROMPT = """
 You are the SmartSpace Inventory Search Agent. Choose zero to five useful parts only from supplied allow-listed
 candidates. Never invent or alter IDs, names, prices, or stock. Quantities are positive and cannot exceed stock.
@@ -45,7 +46,6 @@ async def evaluate(request: InventorySearchRequest) -> InventorySearchResult:
     )
 
     # 2. Safety check: Run deterministic validation against database candidates
-    # This ensures the AI didn't hallucinate IDs, alter prices, exceed stock, or make math errors
     validate_inventory(result, request.candidates)
 
     return result
