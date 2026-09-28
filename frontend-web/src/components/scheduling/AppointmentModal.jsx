@@ -240,6 +240,7 @@ export default function AppointmentModal({
                   <option value="Plumber">Plumber</option>
                   <option value="Electrician">Electrician</option>
                   <option value="Handyman">Handyman</option>
+                  <option value="HVAC">HVAC</option>
                 </select>
               </div>
             </div>

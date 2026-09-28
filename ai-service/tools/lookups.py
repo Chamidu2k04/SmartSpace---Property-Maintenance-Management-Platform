@@ -6,7 +6,7 @@ import asyncpg
 
 from schemas.contracts import InventoryCandidate, TechnicianCandidate
 
-CATEGORY_BY_TRADE = {"Plumber": "Plumbing", "Electrician": "Electrical", "Handyman": "General"}
+CATEGORY_BY_TRADE = {"Plumber": "Plumbing", "Electrician": "Electrical", "Handyman": "General", "HVAC": "HVAC"}
 
 
 def _expanded_terms(description: str, trade: str) -> set[str]:
