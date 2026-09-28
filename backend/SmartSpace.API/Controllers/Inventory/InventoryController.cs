@@ -443,7 +443,12 @@ public class InventoryController : ControllerBase
     {
         try
         {
-            var aiBaseUrl = configuration["AiService:BaseUrl"] ?? "http://127.0.0.1:8000";
+            var aiBaseUrl = configuration["AiService:BaseUrl"]
+                ?? configuration["AiService__BaseUrl"]
+                ?? configuration["AiService_BaseUrl"]
+                ?? configuration["AI_SERVICE_URL"]
+                ?? configuration["AISERVICE_BASEURL"]
+                ?? "http://127.0.0.1:8000";
             var client = httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(45);
 
