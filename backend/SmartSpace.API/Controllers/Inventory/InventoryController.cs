@@ -1,3 +1,5 @@
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +15,7 @@ namespace SmartSpace.API.Controllers.Inventory;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "InventoryOfficer,Technician")]
+[Authorize(Roles = "InventoryOfficer,Technician,PropertyManager")]
 public class InventoryController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -373,4 +375,98 @@ public class InventoryController : ControllerBase
             consumedCount = itemsToDeduct.Count
         });
     }
+
+    /// <summary>
+    /// GET /api/inventory/check-stock
+    /// Returns real-time stock availability for spare parts.
+    /// Calculates available stock by subtracting active (non-consumed) reservations from physical stock.
+    /// This prevents the AI agent from recommending parts that are already locked for another ticket.
+    /// </summary>
+    [HttpGet("check-stock")]
+    public async Task<ActionResult<IEnumerable<AvailableStockCheckDto>>> CheckAvailableStock(
+        [FromQuery] InventoryCategory? category = null,
+        [FromQuery] string? searchTerm = null)
+    {
+        // 1. Fetch items with their reservations (no-tracking for read-only speed)
+        var query = _context.InventoryItems
+            .Include(i => i.PartsReservations)
+            .AsNoTracking();
+
+        // 2. Filter by category if requested (e.g., Plumbing, Electrical)
+        if (category.HasValue)
+        {
+            query = query.Where(i => i.Category == category.Value);
+        }
+
+        // 3. Filter by search keyword in the part name if provided
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(i => i.ItemName.ToLower().Contains(term));
+        }
+
+        // 4. Project into DTO with dynamic calculation of available stock
+        var results = await query
+            .Select(i => new AvailableStockCheckDto
+            {
+                ItemId = i.Id,
+                ItemName = i.ItemName,
+                Category = i.Category,
+                PhysicalStock = i.StockQuantity,
+                // Sum only pending or approved reservations that have not yet been consumed
+                ReservedStock = i.PartsReservations
+                    .Where(r => r.Status != ReservationStatus.Consumed)
+                    .Sum(r => (int?)r.QuantityReserved) ?? 0,
+                // Available stock is physical stock minus active reservations
+                AvailableStock = i.StockQuantity - (i.PartsReservations
+                    .Where(r => r.Status != ReservationStatus.Consumed)
+                    .Sum(r => (int?)r.QuantityReserved) ?? 0),
+                UnitCost = i.UnitCost
+            })
+            .Where(r => r.AvailableStock > 0) // Only return parts that have stock ready to use
+            .ToListAsync();
+
+        return Ok(results);
+    }
+
+    /// <summary>
+    /// POST /api/inventory/ai-chat
+    /// Proxies AI assistant chat requests to the Python AI service.
+    /// Provides seamless access for mobile devices and web clients across all network topologies.
+    /// </summary>
+    [HttpPost("ai-chat")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ChatWithAiAssistant(
+        [FromBody] JsonElement payload,
+        [FromServices] IHttpClientFactory httpClientFactory,
+        [FromServices] IConfiguration configuration)
+    {
+        try
+        {
+            var aiBaseUrl = configuration["AiService:BaseUrl"] ?? "http://127.0.0.1:8000";
+            var client = httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(45);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{aiBaseUrl}/api/inventory-assistant/chat")
+            {
+                Content = new StringContent(payload.GetRawText(), Encoding.UTF8, "application/json")
+            };
+
+            // Forward Authorization header if provided by caller
+            if (Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                request.Headers.TryAddWithoutValidation("Authorization", authHeader.ToString());
+            }
+
+            var response = await client.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            return Content(content, "application/json");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(503, new { detail = $"Failed to reach AI service: {ex.Message}" });
+        }
+    }
 }
+

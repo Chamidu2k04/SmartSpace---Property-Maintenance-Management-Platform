@@ -12,7 +12,13 @@ class Database:
 
     async def connect(self) -> None:
         if self._pool is None:
-            self._pool = await asyncpg.create_pool(get_settings().database_url, min_size=1, max_size=10)
+            import re
+            raw_url = get_settings().database_url
+            url = re.sub(r"[?&]ssl(mode)?=[^&]+", "", raw_url)
+            kwargs = {"min_size": 1, "max_size": 10}
+            if "supabase.co" in raw_url or "ssl" in raw_url.lower():
+                kwargs["ssl"] = "require"
+            self._pool = await asyncpg.create_pool(url, **kwargs)
 
     async def disconnect(self) -> None:
         if self._pool is not None:

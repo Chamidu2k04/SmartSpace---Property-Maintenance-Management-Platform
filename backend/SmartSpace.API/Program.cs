@@ -25,6 +25,7 @@ builder.Services.AddScoped<SmartSpace.API.Services.Scheduling.ITechnicianService
 builder.Services.AddScoped<SmartSpace.API.Services.Scheduling.IAppointmentService, SmartSpace.API.Services.Scheduling.AppointmentService>();
 builder.Services.AddScoped<SmartSpace.API.Services.Common.IEmailService, SmartSpace.API.Services.Common.EmailService>();
 builder.Services.AddScoped<SmartSpace.API.Services.Scheduling.IQuotationService, SmartSpace.API.Services.Scheduling.QuotationService>();
+builder.Services.AddHttpClient();
 
 
 // Property & Lease Management (Member 1)

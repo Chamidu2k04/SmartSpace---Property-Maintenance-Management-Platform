@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import InventoryDashboard from '../components/inventory/InventoryDashboard';
 import SuppliersList from '../components/inventory/SuppliersList';
 import AccessDenied from '../components/inventory/AccessDenied';
+import InventoryAiChatButton from '../components/inventory/InventoryAiChatButton';
 import { Package, Truck } from 'lucide-react';
 
 export default function Inventory() {
@@ -47,6 +48,9 @@ export default function Inventory() {
       <div>
         {activeTab === 'inventory' ? <InventoryDashboard /> : <SuppliersList />}
       </div>
+
+      {/* Standalone AI Inventory Assistant Floating Action Button */}
+      <InventoryAiChatButton />
     </div>
   );
 }
