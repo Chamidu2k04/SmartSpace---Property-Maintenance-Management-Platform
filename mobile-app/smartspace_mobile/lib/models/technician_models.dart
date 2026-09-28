@@ -3,14 +3,16 @@ class TradeSpecialty {
   static const String plumber = 'Plumber';
   static const String electrician = 'Electrician';
   static const String handyman = 'Handyman';
+  static const String hvac = 'HVAC';
 
-  static const List<String> values = [plumber, electrician, handyman];
+  static const List<String> values = [plumber, electrician, handyman, hvac];
 
   static String normalize(String? raw) {
     if (raw == null) return handyman;
     final lower = raw.trim().toLowerCase();
     if (lower == 'plumber') return plumber;
     if (lower == 'electrician') return electrician;
+    if (lower == 'hvac') return hvac;
     return handyman;
   }
 }
