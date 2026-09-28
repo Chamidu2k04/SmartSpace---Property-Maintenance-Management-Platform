@@ -207,6 +207,8 @@ class _TechnicianManagementScreenState extends State<TechnicianManagementScreen>
                     _buildFilterChip('Electrician', _selectedSpecialty == 'Electrician'),
                     const SizedBox(width: 8),
                     _buildFilterChip('Handyman', _selectedSpecialty == 'Handyman'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('HVAC', _selectedSpecialty == 'HVAC'),
                   ],
                 ),
               ),
@@ -696,7 +698,7 @@ class _TechnicianFormModalState extends State<_TechnicianFormModal> {
                 decoration: InputDecoration(
                   labelText: 'Hourly Rate (Rs. / hr) *',
                   floatingLabelBehavior: FloatingLabelBehavior.always,
-                  prefixIcon: const Icon(Icons.attach_money, size: 20),
+                  prefixText: 'Rs. ',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (val) {
