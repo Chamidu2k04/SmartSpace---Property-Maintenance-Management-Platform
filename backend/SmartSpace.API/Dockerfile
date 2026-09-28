@@ -37,7 +37,6 @@ WORKDIR /app
 # Expose port 8080 and configure ASP.NET Core default binding
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Copy published application from build stage
 COPY --from=build /app/publish .
