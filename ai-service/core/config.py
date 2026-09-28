@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def accept_aspnet_connection_string(cls, value: str) -> str:
-        value = value.strip()
+        value = value.strip().strip("'\"")
         if value.startswith(("postgres://", "postgresql://")):
             return value
         parts = {}
