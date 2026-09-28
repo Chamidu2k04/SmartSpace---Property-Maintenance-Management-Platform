@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, field_validator
 
-Trade = Literal["Plumber", "Electrician", "Handyman"]
+Trade = Literal["Plumber", "Electrician", "Handyman", "HVAC"]
 Urgency = Literal["Low", "Medium", "High", "Emergency"]
 Relevance = Literal["Maintenance", "Irrelevant"]
 Liability = Literal["Landlord Responsibility (Wear & Tear)", "Tenant Responsibility (Negligence)"]

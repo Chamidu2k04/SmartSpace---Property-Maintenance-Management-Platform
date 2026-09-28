@@ -1,7 +1,21 @@
 import { useAuthStore } from '../store/useAuthStore';
 
-const AI_BASE_URL = import.meta.env?.VITE_AI_SERVICE_BASE_URL || 'http://localhost:8000/api';
-const BACKEND_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:5030/api';
+const rawAiUrl = (
+  import.meta.env?.VITE_AI_SERVICE_BASE_URL ||
+  import.meta.env?.VITE_AI_SERVICE_URL ||
+  import.meta.env?.VITE_AI_URL ||
+  'http://localhost:8000/api'
+).trim().replace(/\/+$/, '');
+
+const AI_BASE_URL = rawAiUrl.endsWith('/api') ? rawAiUrl : `${rawAiUrl}/api`;
+
+const rawBackendUrl = (
+  import.meta.env?.VITE_API_BASE_URL ||
+  import.meta.env?.VITE_API_URL ||
+  'http://localhost:5030/api'
+).trim().replace(/\/+$/, '');
+
+const BACKEND_BASE_URL = rawBackendUrl.endsWith('/api') ? rawBackendUrl : `${rawBackendUrl}/api`;
 
 /**
  * Sends a chat message to the Inventory Assistant AI endpoint.

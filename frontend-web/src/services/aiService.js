@@ -1,4 +1,11 @@
-const AI_BASE_URL = import.meta.env?.VITE_AI_SERVICE_BASE_URL || 'http://localhost:8000/api';
+const rawAiUrl = (
+  import.meta.env?.VITE_AI_SERVICE_BASE_URL ||
+  import.meta.env?.VITE_AI_SERVICE_URL ||
+  import.meta.env?.VITE_AI_URL ||
+  'http://localhost:8000/api'
+).trim().replace(/\/+$/, '');
+
+const AI_BASE_URL = rawAiUrl.endsWith('/api') ? rawAiUrl : `${rawAiUrl}/api`;
 
 async function aiRequest(path, options = {}) {
   const token = localStorage.getItem('smartspace_token');

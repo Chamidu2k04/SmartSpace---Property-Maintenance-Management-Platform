@@ -4,7 +4,7 @@ from validation.agent_results import validate_triage
 
 PROMPT = """
 You are the SmartSpace Triage & Planning Agent. Normalize the maintenance report, choose exactly one urgency
-(Low, Medium, High, Emergency), choose exactly one trade (Plumber, Electrician, Handyman), provide a concise
+(Low, Medium, High, Emergency), choose exactly one trade (Plumber, Electrician, Handyman, HVAC), provide a concise
 summary, and classify issue_relevance as Maintenance or Irrelevant. Irrelevant means clearly unrelated content
 such as greetings, advertisements, jokes, or requests with no property-maintenance issue. Ambiguous property
 reports remain Maintenance. Always give a non-empty relevance_reason. For Maintenance provide one to five short

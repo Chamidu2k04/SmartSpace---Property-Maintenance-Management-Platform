@@ -14,6 +14,7 @@ import {
   Zap,
   Hammer,
   Droplet,
+  Wind,
   CheckCircle2,
 } from 'lucide-react';
 import {
@@ -162,6 +163,13 @@ export default function TechnicianManagement() {
             Electrician
           </span>
         );
+      case 'HVAC':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-50 text-cyan-700 border border-cyan-200">
+            <Wind className="w-3.5 h-3.5 text-cyan-600" />
+            HVAC
+          </span>
+        );
       case 'Handyman':
       default:
         return (
@@ -205,7 +213,7 @@ export default function TechnicianManagement() {
             Technician Profiles Directory
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Manage user accounts, trade specialties (Plumber, Electrician, Handyman), and hourly billing rates.
+            Manage user accounts, trade specialties (Plumber, Electrician, Handyman, HVAC), and hourly billing rates.
           </p>
         </div>
 

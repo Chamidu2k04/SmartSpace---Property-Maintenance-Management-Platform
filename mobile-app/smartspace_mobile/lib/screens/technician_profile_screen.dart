@@ -548,7 +548,7 @@ class _TechnicianProfileScreenState extends State<TechnicianProfileScreen> {
                             const TextInputType.numberWithOptions(decimal: true),
                         decoration: InputDecoration(
                           labelText: 'Hourly Rate (Rs. / hr)',
-                          prefixIcon: const Icon(Icons.attach_money, size: 20),
+                          prefixText: 'Rs. ',
                           suffixIcon: (!isManager)
                               ? const Icon(Icons.lock, size: 16, color: Colors.grey)
                               : null,

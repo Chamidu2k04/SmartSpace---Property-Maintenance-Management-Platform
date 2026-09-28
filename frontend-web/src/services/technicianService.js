@@ -48,15 +48,17 @@ async function request(endpoint, options = {}) {
 /**
  * TradeSpecialty enum helper values & mappings
  */
-export const TRADE_SPECIALTIES = ['Plumber', 'Electrician', 'Handyman'];
+export const TRADE_SPECIALTIES = ['Plumber', 'Electrician', 'Handyman', 'HVAC'];
 
 export const TRADE_SPECIALTY_MAP = {
   0: 'Plumber',
   1: 'Electrician',
   2: 'Handyman',
+  3: 'HVAC',
   Plumber: 'Plumber',
   Electrician: 'Electrician',
   Handyman: 'Handyman',
+  HVAC: 'HVAC',
 };
 
 /**

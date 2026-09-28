@@ -10,5 +10,6 @@ public enum TradeSpecialty
 {
     Plumber,
     Electrician,
-    Handyman
+    Handyman,
+    HVAC
 }
