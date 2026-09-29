@@ -131,19 +131,19 @@ export default function MaintenanceApprovals() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight m-0">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight m-0">
             Maintenance Requests
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             View, manage, and update tenant maintenance tickets
           </p>
         </div>
         <button
           onClick={handleRefresh}
           disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 shadow-xs cursor-pointer"
         >
           <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           Refresh
@@ -151,35 +151,35 @@ export default function MaintenanceApprovals() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Tickets"
           value={stats.total}
-          color="#1E3A8A"
+          color="#1e3a8a"
           icon={ClipboardList}
         />
         <StatCard
           label="Submitted"
           value={stats.submitted}
-          color="#6B7280"
+          color="#64748b"
           icon={Send}
         />
         <StatCard
           label="In Progress"
           value={stats.inProgress}
-          color="#3B82F6"
+          color="#2563eb"
           icon={Clock}
         />
         <StatCard
           label="Completed"
           value={stats.completed}
-          color="#10B981"
+          color="#10b981"
           icon={CheckCircle2}
         />
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+      <div className="flex items-center gap-1.5 p-1.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
         {FILTER_TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeFilter === tab.key;
@@ -187,9 +187,9 @@ export default function MaintenanceApprovals() {
             <button
               key={tab.label}
               onClick={() => handleFilterChange(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${isActive
-                  ? 'bg-[#1E3A8A] text-white shadow-sm'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                 }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ export default function MaintenanceApprovals() {
       </div>
 
       {/* Content Area */}
-      {aiError && <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 flex items-center gap-2"><AlertTriangle className="w-4 h-4" />{aiError}</div>}
+      {aiError && <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700 flex items-center gap-2"><AlertTriangle className="w-4 h-4" />{aiError}</div>}
       {isLoading ? (
         <LoadingSkeleton />
       ) : error ? (
@@ -224,16 +224,16 @@ export default function MaintenanceApprovals() {
 /** Stats card sub-component */
 function StatCard({ label, value, color, icon: Icon }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
       <div
-        className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0"
-        style={{ backgroundColor: `${color}10`, color: color }}
+        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+        style={{ backgroundColor: `${color}15`, color: color }}
       >
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider m-0">{label}</p>
-        <p className="text-2xl font-bold text-gray-900 m-0 mt-0.5">{value}</p>
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider m-0">{label}</p>
+        <p className="text-2xl font-extrabold text-slate-900 m-0 mt-0.5">{value}</p>
       </div>
     </div>
   );
