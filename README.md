@@ -420,8 +420,8 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 | Submit Maintenance Ticket | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Review & Approve AI Proposals | ❌ | ✅ | ❌ | ❌ | ❌ |
 | Update Assigned Ticket Status | ❌ | ✅ | ❌ | ✅ | ❌ |
-| Manage Inventory & Parts | ❌ | ✅ | ❌ | Read | ✅ |
-| Conversational Inventory AI | ❌ | ✅ | ❌ | Read | ✅ |
+| Manage Inventory & Parts | ❌ | ❌ | ❌ | Read | ✅ |
+| Conversational Inventory AI | ❌ | ❌ | ❌ | Read | ✅ |
 
 ---
 
