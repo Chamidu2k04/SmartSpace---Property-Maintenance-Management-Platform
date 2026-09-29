@@ -443,7 +443,23 @@ public class InventoryController : ControllerBase
     {
         try
         {
-            var aiBaseUrl = configuration["AiService:BaseUrl"] ?? "http://127.0.0.1:8000";
+            var aiBaseUrl = Environment.GetEnvironmentVariable("AI_SERVICE_URL")
+                ?? Environment.GetEnvironmentVariable("AiService__BaseUrl")
+                ?? Environment.GetEnvironmentVariable("AiService_BaseUrl")
+                ?? Environment.GetEnvironmentVariable("AISERVICE_BASEURL")
+                ?? configuration["AiService:BaseUrl"]
+                ?? configuration["AI_SERVICE_URL"]
+                ?? configuration["AiService__BaseUrl"]
+                ?? configuration["AiService_BaseUrl"]
+                ?? "http://127.0.0.1:8000";
+
+            aiBaseUrl = aiBaseUrl.Trim().TrimEnd('/');
+            if (aiBaseUrl.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
+            {
+                aiBaseUrl = aiBaseUrl[..^4].TrimEnd('/');
+            }
+
+            Console.WriteLine($"[AiChatProxy] Target AI Service: {aiBaseUrl}/api/inventory-assistant/chat");
             var client = httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(45);
 

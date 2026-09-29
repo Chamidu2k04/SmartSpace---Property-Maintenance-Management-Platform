@@ -1,0 +1,16 @@
+**/.git
+**/.github
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/*.user
+**/*.suo
+**/node_modules
+**/dist
+**/.venv
+**/__pycache__
+frontend-web/
+mobile-app/
+ai-service/
+backend/SmartSpace.Tests/
