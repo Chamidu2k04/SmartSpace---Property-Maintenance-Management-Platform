@@ -14,6 +14,7 @@ export default function AppointmentModal({
   technicians = [],
   tickets = [],
   existingAppointments = [],
+  quotations = [],
   preselectedTicketId = '',
   isLoading = false,
 }) {
@@ -29,14 +30,20 @@ export default function AppointmentModal({
   const [errors, setErrors] = useState({});
   const [selectedSpecialty, setSelectedSpecialty] = useState('All');
 
-  // Filter unscheduled tickets (tickets without any existing appointment record)
+  // Filter unscheduled tickets (tickets without any existing appointment record or quotation record)
   const unscheduledTickets = useMemo(() => {
     if (!tickets || tickets.length === 0) return [];
     const scheduledTicketIds = new Set(
       (existingAppointments || []).map((app) => (app.ticketId || '').toLowerCase())
     );
-    return tickets.filter((t) => !scheduledTicketIds.has((t.id || '').toLowerCase()));
-  }, [tickets, existingAppointments]);
+    const quotationTicketIds = new Set(
+      (quotations || []).map((q) => (q.ticketId || '').toLowerCase())
+    );
+    return tickets.filter((t) => {
+      const tid = (t.id || '').toLowerCase();
+      return !scheduledTicketIds.has(tid) && !quotationTicketIds.has(tid);
+    });
+  }, [tickets, existingAppointments, quotations]);
 
   useEffect(() => {
     if (initialData) {

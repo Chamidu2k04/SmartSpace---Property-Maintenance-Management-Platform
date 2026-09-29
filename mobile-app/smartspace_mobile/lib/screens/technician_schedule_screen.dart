@@ -174,10 +174,16 @@ class _TechnicianScheduleScreenState extends State<TechnicianScheduleScreen> {
     final technicians = provider.technicians;
     final tickets = provider.tickets;
     final existingAppointments = provider.appointments;
+    final existingQuotations = provider.quotations;
 
-    // Filter unscheduled tickets
-    final scheduledTicketIds = existingAppointments.map((a) => a.ticketId.toLowerCase()).toSet();
-    final unscheduledTickets = tickets.where((t) => !scheduledTicketIds.contains(t.id.toLowerCase())).toList();
+    // Filter unscheduled tickets (tickets without any existing appointment record or quotation record)
+    final scheduledTicketIds = existingAppointments.map((a) => a.ticketId.toLowerCase().trim()).toSet();
+    final quotationTicketIds = existingQuotations.map((q) => q.ticketId.toLowerCase().trim()).toSet();
+
+    final unscheduledTickets = tickets.where((t) {
+      final tid = t.id.toLowerCase().trim();
+      return !scheduledTicketIds.contains(tid) && !quotationTicketIds.contains(tid);
+    }).toList();
     final availableTickets = unscheduledTickets.isNotEmpty ? unscheduledTickets : tickets;
 
     String selectedTicketId = appointment?.ticketId ??
