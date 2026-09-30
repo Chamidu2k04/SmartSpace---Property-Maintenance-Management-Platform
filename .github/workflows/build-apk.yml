@@ -1,0 +1,59 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'Backend API URL'
+        required: true
+        default: 'https://smartspace-api-if5f.onrender.com/api'
+      ai_url:
+        description: 'AI Service URL'
+        required: true
+        default: 'https://smartspace-ai-service.onrender.com/api'
+
+jobs:
+  build-apk:
+    name: 📱 Build Android APK (Smart Space)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 🛠️ Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Get Flutter Dependencies
+        working-directory: ./mobile-app/smartspace_mobile
+        run: flutter pub get
+
+      - name: 🚀 Build Release APK
+        working-directory: ./mobile-app/smartspace_mobile
+        run: |
+          API_URL="${{ github.event.inputs.api_url || 'https://smartspace-api-if5f.onrender.com/api' }}"
+          AI_URL="${{ github.event.inputs.ai_url || 'https://smartspace-ai-service.onrender.com/api' }}"
+          flutter build apk --release \
+            --dart-define=API_URL="$API_URL" \
+            --dart-define=AI_URL="$AI_URL"
+
+      - name: 🏷️ Prepare APK Artifact
+        working-directory: ./mobile-app/smartspace_mobile
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk SmartSpace.apk
+
+      - name: 📤 Upload SmartSpace APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SmartSpace-Android-APK
+          path: mobile-app/smartspace_mobile/SmartSpace.apk
+          retention-days: 14
