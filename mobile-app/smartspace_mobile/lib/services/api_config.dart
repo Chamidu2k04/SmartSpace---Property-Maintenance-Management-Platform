@@ -24,9 +24,16 @@ class ApiConfig {
     return "http://localhost:5030/api";
   }
 
+  static String get serverRootUrl {
+    if (baseUrl.endsWith("/api")) {
+      return baseUrl.substring(0, baseUrl.length - 4);
+    }
+    return baseUrl;
+  }
+
   static String get authUrl => "$baseUrl/auth";
   static String get usersUrl => "$baseUrl/users";
-  static String get ticketsUrl => baseUrl;
+  static String get ticketsUrl => "$baseUrl/tickets";
 
   /// Backend proxy URL for Inventory AI assistant (safest for mobile, avoiding port/network issues)
   static String get aiProxyUrl => "$baseUrl/inventory/ai-chat";

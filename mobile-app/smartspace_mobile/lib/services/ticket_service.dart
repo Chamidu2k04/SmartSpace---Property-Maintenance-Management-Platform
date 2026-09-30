@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import '../models/ticket_model.dart';
+import 'api_config.dart';
 import 'storage_service.dart';
 
 class TicketServiceException implements Exception {
@@ -22,17 +22,9 @@ class TicketService {
       : _client = client ?? http.Client(),
         _storageService = storageService ?? SecureStorageService();
 
-  static String get serverBaseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5030';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030';
-    } else {
-      return 'http://localhost:5030';
-    }
-  }
+  static String get serverBaseUrl => ApiConfig.serverRootUrl;
 
-  static String get baseUrl => '$serverBaseUrl/api/tickets';
+  static String get baseUrl => ApiConfig.ticketsUrl;
 
   /// Helper to convert relative image paths (e.g. `/uploads/tickets/...`) to full HTTP URLs.
   static String getFullImageUrl(String? pathOrUrl) {

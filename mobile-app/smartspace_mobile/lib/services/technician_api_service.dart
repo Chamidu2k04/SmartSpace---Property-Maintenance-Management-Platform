@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/technician_models.dart';
+import 'api_config.dart';
 
 /// Custom API Exceptions
 class ApiException implements Exception {
@@ -53,13 +53,7 @@ class TechnicianApiService {
     if (custom != null && custom.isNotEmpty) {
       return custom;
     }
-    if (kIsWeb) {
-      return 'http://localhost:5030/api';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030/api';
-    } else {
-      return 'http://localhost:5030/api';
-    }
+    return ApiConfig.baseUrl;
   }
 
   /// Read JWT Token from FlutterSecureStorage with SharedPreferences fallback.

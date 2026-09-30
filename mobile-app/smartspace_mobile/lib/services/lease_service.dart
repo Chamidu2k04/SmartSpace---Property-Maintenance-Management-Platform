@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/lease_model.dart';
+import 'api_config.dart';
 
 class LeaseServiceException implements Exception {
   final String message;
@@ -24,13 +24,7 @@ class LeaseService {
     if (_customBaseUrl?.isNotEmpty == true) {
       return _customBaseUrl!;
     }
-    if (kIsWeb) {
-      return 'http://localhost:5030/api';
-    }
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030/api';
-    }
-    return 'http://localhost:5030/api';
+    return ApiConfig.baseUrl;
   }
 
   Future<LeaseModel?> fetchMyActiveLease(String token) async {

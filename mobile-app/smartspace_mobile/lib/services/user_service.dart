@@ -1,20 +1,12 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import 'storage_service.dart';
 
 class UserService {
   final SecureStorageService _storageService = SecureStorageService();
 
-  static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5030/api/users';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030/api/users';
-    } else {
-      return 'http://localhost:5030/api/users';
-    }
-  }
+  static String get baseUrl => ApiConfig.usersUrl;
 
   /// Fetch all users with optional partial search.
   Future<List<Map<String, dynamic>>> fetchUsers({String searchQuery = ''}) async {
