@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/technician_models.dart';
 import 'api_config.dart';
+import 'storage_service.dart';
 
 /// Custom API Exceptions
 class ApiException implements Exception {
@@ -34,17 +34,17 @@ class NetworkException extends ApiException {
 /// Service handling API interactions for Technician Scheduling & Quotations module.
 class TechnicianApiService {
   final http.Client _client;
-  final FlutterSecureStorage _secureStorage;
+  final SecureStorageService _storageService;
   final String? _customBaseUrl;
 
   static const String tokenKey = 'smartspace_jwt_token';
 
   TechnicianApiService({
     http.Client? client,
-    FlutterSecureStorage? secureStorage,
+    SecureStorageService? storageService,
     String? baseUrl,
   })  : _client = client ?? http.Client(),
-        _secureStorage = secureStorage ?? const FlutterSecureStorage(),
+        _storageService = storageService ?? SecureStorageService(),
         _customBaseUrl = baseUrl;
 
   /// Base URL matching ASP.NET Core API (Port 5030)
@@ -56,14 +56,12 @@ class TechnicianApiService {
     return ApiConfig.baseUrl;
   }
 
-  /// Read JWT Token from FlutterSecureStorage with SharedPreferences fallback.
+  /// Read JWT Token from SecureStorageService with SharedPreferences fallback.
   Future<String?> _getToken() async {
     try {
-      final token = await _secureStorage.read(key: tokenKey);
+      final token = await _storageService.getToken();
       if (token != null && token.isNotEmpty) return token;
-    } catch (_) {
-      // Fallback for non-mobile platforms
-    }
+    } catch (_) {}
 
     try {
       final prefs = await SharedPreferences.getInstance();

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/technician_models.dart';
+import '../services/storage_service.dart';
 import '../services/technician_api_service.dart';
 
 /// State Management Provider for Technician Scheduling & Quotations module.
 class TechnicianProvider extends ChangeNotifier {
   final TechnicianApiService _apiService;
-  final FlutterSecureStorage _secureStorage;
+  final SecureStorageService _storageService;
 
   TechnicianProvider({
     TechnicianApiService? apiService,
-    FlutterSecureStorage? secureStorage,
+    SecureStorageService? storageService,
   })  : _apiService = apiService ?? TechnicianApiService(),
-        _secureStorage = secureStorage ?? const FlutterSecureStorage();
+        _storageService = storageService ?? SecureStorageService();
 
   // State Lists
   List<TechnicianProfile> _technicians = [];
@@ -54,17 +54,18 @@ class TechnicianProvider extends ChangeNotifier {
   /// Initialize user session context read-only from secure storage or shared prefs
   Future<void> initSession() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      _userRole = prefs.getString('smartspace_user_role') ?? 'PropertyManager';
-      _userId = prefs.getString('smartspace_user_id') ?? '';
-      _userEmail = prefs.getString('smartspace_user_email') ?? '';
-    } catch (_) {
-      try {
-        _userRole = await _secureStorage.read(key: 'smartspace_user_role') ?? 'PropertyManager';
-        _userId = await _secureStorage.read(key: 'smartspace_user_id') ?? '';
-        _userEmail = await _secureStorage.read(key: 'smartspace_user_email') ?? '';
-      } catch (_) {}
-    }
+      final user = await _storageService.getUser();
+      if (user != null) {
+        _userRole = user['role'] ?? 'PropertyManager';
+        _userId = user['id'] ?? '';
+        _userEmail = user['email'] ?? '';
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        _userRole = prefs.getString('smartspace_user_role') ?? 'PropertyManager';
+        _userId = prefs.getString('smartspace_user_id') ?? '';
+        _userEmail = prefs.getString('smartspace_user_email') ?? '';
+      }
+    } catch (_) {}
     notifyListeners();
   }
 
