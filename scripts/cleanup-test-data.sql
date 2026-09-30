@@ -8,6 +8,22 @@
 
 BEGIN;
 
+-- Step 0: PREVIEW — count rows that WILL be deleted (review before commit)
+-- The preview step is for the operator to review counts before COMMIT.
+-- If the preview counts look wrong, the operator can ROLLBACK instead of COMMIT.
+SELECT
+    COUNT(*) FILTER (WHERE "Description" LIKE '[LOADTEST]%') AS images_to_delete
+FROM "TicketImages"
+WHERE "TicketId" IN (
+    SELECT "Id" FROM "MaintenanceTickets"
+    WHERE "Description" LIKE '[LOADTEST]%'
+);
+
+SELECT
+    COUNT(*) AS tickets_to_delete
+FROM "MaintenanceTickets"
+WHERE "Description" LIKE '[LOADTEST]%';
+
 -- Step 1: Delete images belonging to test tickets
 -- (Images must be deleted first due to foreign key constraint)
 DELETE FROM "TicketImages"
