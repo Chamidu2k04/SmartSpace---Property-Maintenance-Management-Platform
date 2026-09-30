@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/inventory_item.dart';
 import '../models/supplier_model.dart';
+import 'api_config.dart';
 
 /// Custom exceptions for granular and user-friendly error handling.
 class ApiException implements Exception {
@@ -52,13 +53,7 @@ class InventoryService {
     if (custom != null && custom.isNotEmpty) {
       return custom;
     }
-    if (kIsWeb) {
-      return 'http://localhost:5030/api';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030/api';
-    } else {
-      return 'http://localhost:5030/api';
-    }
+    return ApiConfig.baseUrl;
   }
 
   /// Retrieves the JWT authentication token from secure storage or shared prefs.
