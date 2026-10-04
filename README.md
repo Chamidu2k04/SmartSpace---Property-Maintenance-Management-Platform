@@ -416,12 +416,12 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 | Feature / Action | Admin | Property Manager | Tenant | Technician | Inventory Officer |
 |---|:---:|:---:|:---:|:---:|:---:|
 | User & Role Management | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Create Properties & Leases | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Submit Maintenance Ticket | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Review & Approve AI Proposals | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Update Assigned Ticket Status | ✅ | ✅ | ❌ | ✅ | ❌ |
-| Manage Inventory & Parts | ✅ | ✅ | ❌ | Read | ✅ |
-| Conversational Inventory AI | ✅ | ✅ | ❌ | Read | ✅ |
+| Create Properties & Leases | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Submit Maintenance Ticket | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Review & Approve AI Proposals | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Update Assigned Ticket Status | ❌ | ✅ | ❌ | ✅ | ❌ |
+| Manage Inventory & Parts | ❌ | ❌ | ❌ | Read | ✅ |
+| Conversational Inventory AI | ❌ | ❌ | ❌ | Read | ✅ |
 
 ---
 
