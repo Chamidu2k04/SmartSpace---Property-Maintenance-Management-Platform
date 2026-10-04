@@ -151,11 +151,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments (including production)
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Serves uploaded ticket photos from wwwroot/uploads (LocalFileStorageService)
 app.UseStaticFiles();
@@ -163,6 +161,16 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Health check endpoint for uptime and orchestrator monitoring
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    timestamp = DateTime.UtcNow
+})).AllowAnonymous();
+
+// Redirect root path to Swagger documentation
+app.MapGet("/", () => Results.Redirect("/swagger")).AllowAnonymous();
 
 app.Run();
 
