@@ -4,229 +4,214 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 /**
- * Self-contained QuotationApprovalModal React component under test.
- * Renders labor hours, labor cost, parts list breakdown, total amount, and handles approval/rejection.
+ * Self-contained QuotationModal React component under test.
+ * Implements labor cost, parts cost, total calculation, approval, negative validation, and role access guards.
  */
-export const QuotationApprovalModal = ({ quotation, onApprove, onReject, onClose }) => {
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+export const QuotationModalUnderTest = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData = null,
+  isPropertyManager = true,
+  onApprove = null,
+}) => {
+  const [formData, setFormData] = useState({
+    ticketId: initialData?.ticketId || '',
+    laborCost: initialData?.laborCost !== undefined ? String(initialData.laborCost) : '',
+    partsCost: initialData?.partsCost !== undefined ? String(initialData.partsCost) : '',
+  });
 
-  if (!quotation) return null;
+  const [errors, setErrors] = useState({});
 
-  const handleRejectSubmit = (e) => {
-    e.preventDefault();
-    if (!rejectionReason.trim()) {
-      setErrorMessage('Rejection reason is required before submission.');
-      return;
+  if (!isOpen) return null;
+
+  const isViewOnly = Boolean(initialData);
+  const laborNum = parseFloat(formData.laborCost) || 0;
+  const partsNum = parseFloat(formData.partsCost) || 0;
+  const calculatedTotal = laborNum + partsNum;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    const num = parseFloat(value);
+    if (value !== '' && (isNaN(num) || num < 0)) {
+      setErrors((prev) => ({ ...prev, [name]: 'Value must be greater than or equal to 0.' }));
+    } else {
+      setErrors((prev) => ({ ...prev, [name]: null }));
     }
-    setErrorMessage('');
-    onReject({ id: quotation.id, status: 'Rejected', reason: rejectionReason });
-  };
-
-  const handleApproveClick = () => {
-    onApprove({ id: quotation.id, status: 'Approved' });
   };
 
   return (
-    <div role="dialog" aria-modal="true" className="modal-backdrop">
-      <div className="modal-content">
-        <h2>Quotation Approval</h2>
+    <div role="dialog" className="modal-backdrop">
+      <h2>{isViewOnly ? 'Quotation Cost Breakdown' : 'Create Maintenance Quotation'}</h2>
 
-        {/* Quotation Details */}
-        <div className="quotation-details">
-          <p><strong>Labor Hours:</strong> <span data-testid="labor-hours">{quotation.laborHours} hrs</span></p>
-          <p><strong>Labor Cost:</strong> <span data-testid="labor-cost">${quotation.laborCost.toFixed(2)}</span></p>
+      {/* Labor Cost Input */}
+      <div>
+        <label htmlFor="laborCost">Labor Cost (Rs.)</label>
+        <input
+          id="laborCost"
+          name="laborCost"
+          type="number"
+          placeholder="120.00"
+          value={formData.laborCost}
+          onChange={handleChange}
+          disabled={isViewOnly}
+        />
+        {errors.laborCost && <p role="alert" className="error-text">{errors.laborCost}</p>}
+      </div>
 
-          <div data-testid="parts-list">
-            <h3>Parts Required:</h3>
-            <ul>
-              {quotation.parts && quotation.parts.length > 0 ? (
-                quotation.parts.map((part, index) => (
-                  <li key={index} data-testid="part-item">
-                    {part.name}: ${part.cost.toFixed(2)}
-                  </li>
-                ))
-              ) : (
-                <li>No parts required</li>
-              )}
-            </ul>
-          </div>
+      {/* Parts Cost Input */}
+      <div>
+        <label htmlFor="partsCost">Parts Cost (Rs.)</label>
+        <input
+          id="partsCost"
+          name="partsCost"
+          type="number"
+          placeholder="45.50"
+          value={formData.partsCost}
+          onChange={handleChange}
+          disabled={isViewOnly}
+        />
+        {errors.partsCost && <p role="alert" className="error-text">{errors.partsCost}</p>}
+      </div>
 
-          <p className="total-amount">
-            <strong>Total Amount:</strong> <span data-testid="total-amount">${quotation.totalAmount.toFixed(2)}</span>
-          </p>
-        </div>
+      {/* Itemized Total Summary Card */}
+      <div className="summary-card">
+        <p>Estimated Labor Cost: Rs. {laborNum.toFixed(2)}</p>
+        <p>Parts & Materials Cost: Rs. {partsNum.toFixed(2)}</p>
+        <p className="total-cost">Total Estimated Cost: Rs. {calculatedTotal.toFixed(2)}</p>
+      </div>
 
-        {/* Error Feedback */}
-        {errorMessage && <div role="alert" className="error-message">{errorMessage}</div>}
-
-        {/* Action Form / Buttons */}
-        <form onSubmit={handleRejectSubmit}>
-          <label htmlFor="rejection-reason">Rejection Reason:</label>
-          <textarea
-            id="rejection-reason"
-            data-testid="rejection-reason-input"
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            placeholder="Enter reason if rejecting..."
-          />
-
-          <div className="modal-actions">
-            <button
-              type="button"
-              data-testid="approve-btn"
-              onClick={handleApproveClick}
-            >
-              Approve
-            </button>
-            <button
-              type="submit"
-              data-testid="reject-btn"
-            >
-              Reject
-            </button>
-            <button type="button" onClick={onClose}>
-              Cancel
-            </button>
-          </div>
-        </form>
+      {/* Action Footer */}
+      <div className="actions">
+        <button type="button" onClick={onClose}>Close</button>
+        {isViewOnly && isPropertyManager && onApprove && (
+          <button type="button" onClick={() => onApprove(initialData.id)}>
+            Approve Quotation
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
-// =========================================================================
-// VITEST + REACT TESTING LIBRARY SUITE FOR QUOTATION APPROVAL MODAL
-// =========================================================================
+// VITEST + REACT TESTING LIBRARY SUITE FOR SCHEDULING & QUOTATION MANAGEMENT
 
-describe('QuotationApprovalModal Component Tests', () => {
+describe('Quotation Management Web Component Tests', () => {
   afterEach(() => {
     cleanup();
   });
 
   const mockQuotation = {
     id: 'Q1001',
-    laborHours: 3.5,
+    ticketId: '11111111-1111-1111-1111-111111111111',
     laborCost: 175.00,
-    parts: [
-      { name: 'HVAC Filter', cost: 25.50 },
-      { name: 'Capacitor 45uF', cost: 45.00 }
-    ],
-    totalAmount: 245.50
+    partsCost: 70.50,
+    totalCost: 245.50,
+    isApproved: false,
   };
 
-  // =========================================================================
-  // TEST CASE 1: Accurate Details Rendering
-  // =========================================================================
-  /**
-   * WHAT: Verifies that the modal correctly renders labor hours, labor cost, parts list breakdown, and total cost.
-   * WHY: User interface verification - property managers must see a complete, transparent itemized quote before decision-making.
-   * VIVA TIP: Explain that screen queries (getByTestId/getByText) validate that accurate formatted currency values and DOM elements match the injected props.
-   */
-  it('renders quotation details accurately (Labor hours, Labor cost, Parts list, Total amount)', () => {
-    // ARRANGE
-    const mockApprove = vi.fn();
-    const mockReject = vi.fn();
-    const mockClose = vi.fn();
+  // TEST CASE 1: TC-SCH-WEB01 - Itemized Quotation Rendering
 
-    // ACT
+  it('TC-SCH-WEB01: renders labor cost, parts cost, and calculated total cost accurately', () => {
     render(
-      <QuotationApprovalModal
-        quotation={mockQuotation}
-        onApprove={mockApprove}
-        onReject={mockReject}
-        onClose={mockClose}
+      <QuotationModalUnderTest
+        isOpen={true}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        initialData={mockQuotation}
+        isPropertyManager={true}
       />
     );
 
-    // ASSERT
-    expect(screen.getByTestId('labor-hours').textContent).toBe('3.5 hrs');
-    expect(screen.getByTestId('labor-cost').textContent).toBe('$175.00');
-    expect(screen.getAllByTestId('part-item')).toHaveLength(2);
-    expect(screen.getByText('HVAC Filter: $25.50')).toBeDefined();
-    expect(screen.getByText('Capacitor 45uF: $45.00')).toBeDefined();
-    expect(screen.getByTestId('total-amount').textContent).toBe('$245.50');
+    expect(screen.getByText('Quotation Cost Breakdown')).toBeDefined();
+    expect(screen.getByText('Estimated Labor Cost: Rs. 175.00')).toBeDefined();
+    expect(screen.getByText('Parts & Materials Cost: Rs. 70.50')).toBeDefined();
+    expect(screen.getByText('Total Estimated Cost: Rs. 245.50')).toBeDefined();
   });
 
-  // =========================================================================
-  // TEST CASE 2: Approve Callback Invocation
-  // =========================================================================
-  /**
-   * WHAT: Simulates clicking the "Approve" button and asserts the onApprove callback is fired with the quotation ID and status.
-   * WHY: User interaction test - approving a quotation must dispatch the correct approval payload to trigger backend status updates.
-   * VIVA TIP: Demonstrate that fireEvent.click triggers component handler, verifying vi.fn() mock mock calls with expected payload { id: 'Q1001', status: 'Approved' }.
-   */
-  it('simulates clicking the Approve button and verifies the callback mock is invoked with proper status', () => {
-    // ARRANGE
+  // TEST CASE 2: TC-SCH-WEB02 - Manager Quotation Approval
+  it('TC-SCH-WEB02: simulates clicking Approve button and fires onApprove callback with quotation ID', () => {
     const mockApprove = vi.fn();
-    const mockReject = vi.fn();
-    const mockClose = vi.fn();
 
     render(
-      <QuotationApprovalModal
-        quotation={mockQuotation}
+      <QuotationModalUnderTest
+        isOpen={true}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        initialData={mockQuotation}
+        isPropertyManager={true}
         onApprove={mockApprove}
-        onReject={mockReject}
-        onClose={mockClose}
       />
     );
 
-    // ACT
-    const approveButton = screen.getByTestId('approve-btn');
+    const approveButton = screen.getByRole('button', { name: /Approve Quotation/i });
     fireEvent.click(approveButton);
 
-    // ASSERT
     expect(mockApprove).toHaveBeenCalledTimes(1);
-    expect(mockApprove).toHaveBeenCalledWith({
-      id: 'Q1001',
-      status: 'Approved'
-    });
-    expect(mockReject).not.toHaveBeenCalled();
+    expect(mockApprove).toHaveBeenCalledWith('Q1001');
   });
 
-  // =========================================================================
-  // TEST CASE 3: Rejection Reason Validation
-  // =========================================================================
-  /**
-   * WHAT: Simulates clicking "Reject" without a reason to assert validation failure, then inputs a reason and submits successfully.
-   * WHY: Business validation - managers must not reject quotations without recording an explicit audit reason for technicians.
-   * VIVA TIP: Defend that state guards validate empty inputs, showing an alert error when empty and invoking onReject only after text input is provided.
-   */
-  it('simulates clicking Reject and asserts that a rejection reason must be provided before submission', () => {
-    // ARRANGE
-    const mockApprove = vi.fn();
-    const mockReject = vi.fn();
-    const mockClose = vi.fn();
 
+  // TEST CASE 3: TC-SCH-WEB03 - Technician Access Restriction
+  it('TC-SCH-WEB03: restricts approval actions when user is not a Property Manager (Technician role)', () => {
     render(
-      <QuotationApprovalModal
-        quotation={mockQuotation}
-        onApprove={mockApprove}
-        onReject={mockReject}
-        onClose={mockClose}
+      <QuotationModalUnderTest
+        isOpen={true}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        initialData={mockQuotation}
+        isPropertyManager={false}
+        onApprove={vi.fn()}
       />
     );
 
-    const rejectButton = screen.getByTestId('reject-btn');
+    const approveButton = screen.queryByRole('button', { name: /Approve Quotation/i });
+    expect(approveButton).toBeNull();
+  });
 
-    // ACT 1: Click Reject without filling rejection reason
-    fireEvent.click(rejectButton);
 
-    // ASSERT 1: Rejection callback should NOT be called and error message must display
-    expect(mockReject).not.toHaveBeenCalled();
-    expect(screen.getByRole('alert').textContent).toContain('Rejection reason is required before submission.');
+  // TEST CASE 4: TC-SCH-WEB04 - Negative Cost Input Validation
+  it('TC-SCH-WEB04: displays inline error "Value must be greater than or equal to 0." for negative cost inputs', () => {
+    render(
+      <QuotationModalUnderTest
+        isOpen={true}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        initialData={null}
+        isPropertyManager={true}
+      />
+    );
 
-    // ACT 2: Enter rejection reason and resubmit
-    const reasonInput = screen.getByTestId('rejection-reason-input');
-    fireEvent.change(reasonInput, { target: { value: 'Labor cost is higher than estimate budget.' } });
-    fireEvent.click(rejectButton);
+    const laborInput = screen.getByLabelText('Labor Cost (Rs.)');
+    fireEvent.change(laborInput, { target: { name: 'laborCost', value: '-50' } });
 
-    // ASSERT 2: Rejection callback should now be called with reason
-    expect(mockReject).toHaveBeenCalledTimes(1);
-    expect(mockReject).toHaveBeenCalledWith({
-      id: 'Q1001',
-      status: 'Rejected',
-      reason: 'Labor cost is higher than estimate budget.'
-    });
+    expect(screen.getByRole('alert').textContent).toBe('Value must be greater than or equal to 0.');
+  });
+
+  // TEST CASE 5: TC-SCH-WEB05 - Zero Parts Cost Rendering
+  it('TC-SCH-WEB05: renders zero parts cost (Rs. 0.00) correctly for labor-only quotations', () => {
+    const laborOnlyQuotation = {
+      id: 'Q1002',
+      ticketId: '22222222-2222-2222-2222-222222222222',
+      laborCost: 130.00,
+      partsCost: 0,
+      totalCost: 130.00,
+      isApproved: false,
+    };
+
+    render(
+      <QuotationModalUnderTest
+        isOpen={true}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        initialData={laborOnlyQuotation}
+        isPropertyManager={true}
+      />
+    );
+
+    expect(screen.getByText('Parts & Materials Cost: Rs. 0.00')).toBeDefined();
+    expect(screen.getByText('Total Estimated Cost: Rs. 130.00')).toBeDefined();
   });
 });

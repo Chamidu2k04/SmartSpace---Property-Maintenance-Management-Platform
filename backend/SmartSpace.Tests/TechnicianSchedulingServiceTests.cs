@@ -9,10 +9,8 @@ using Xunit;
 
 namespace SmartSpace.Tests
 {
-    /// <summary>
     /// Service logic double for Technician Scheduling & Quotation calculations.
     /// Encapsulates double-booking prevention rules and quotation formula without altering production code.
-    /// </summary>
     public class TechnicianSchedulingService
     {
         private readonly ApplicationDbContext _context;
@@ -72,9 +70,7 @@ namespace SmartSpace.Tests
         }
     }
 
-    /// <summary>
-    /// Test Suite for Technician Scheduling and Quotation Subsystem.
-    /// </summary>
+    // Test Suite for Technician Scheduling and Quotation Subsystem.
     public class TechnicianSchedulingServiceTests
     {
         private ApplicationDbContext GetInMemoryDbContext()
@@ -85,14 +81,10 @@ namespace SmartSpace.Tests
             return new ApplicationDbContext(options);
         }
 
-        // =========================================================================
         // TEST CASE 1: Normal Happy Path - Book Available Slot
-        // =========================================================================
-        /// <summary>
+      
         /// WHAT: Verifies that a technician can be booked when no overlapping appointments exist.
         /// WHY: Core functional requirement - free slots must be successfully reserved for maintenance.
-        /// VIVA TIP: Explain to examiner that we seed zero conflicting appointments, call BookAppointmentAsync, and assert the status is Scheduled and persisted in DB.
-        /// </summary>
         [Fact]
         public async Task BookAppointment_FreeSlot_SuccessfullyBooksAppointment()
         {
@@ -116,14 +108,10 @@ namespace SmartSpace.Tests
             Assert.Equal(1, await context.Appointments.CountAsync());
         }
 
-        // =========================================================================
         // TEST CASE 2: Invalid / Conflict - Overlapping Appointment
-        // =========================================================================
-        /// <summary>
+
         /// WHAT: Verifies that attempting to book an overlapping time slot throws an InvalidOperationException.
         /// WHY: Crucial double-booking prevention business rule to prevent technician schedule collisions.
-        /// VIVA TIP: Defend that the overlap algorithm strictly evaluates (newStart < existingEnd && newEnd > existingStart), throwing an exception to protect schedule integrity.
-        /// </summary>
         [Fact]
         public async Task BookAppointment_OverlappingSlot_ThrowsInvalidOperationException()
         {
@@ -159,14 +147,10 @@ namespace SmartSpace.Tests
             Assert.Contains("already booked", exception.Message);
         }
 
-        // =========================================================================
         // TEST CASE 3: Boundary Case - Back-to-Back Slot (Exact End Time Start)
-        // =========================================================================
-        /// <summary>
+
         /// WHAT: Verifies that a new booking starting exactly when an existing booking ends is valid and successful.
         /// WHY: Edge case validation - back-to-back appointments should be allowed without false positive conflict triggers.
-        /// VIVA TIP: Demonstrate that when newStart == existingEnd (e.g. 12:00 PM), newStart < existingEnd evaluates to false, allowing back-to-back schedule efficiency.
-        /// </summary>
         [Fact]
         public async Task BookAppointment_ExactEndTimeStart_SuccessfullyBooksBackToBackSlot()
         {
@@ -203,14 +187,10 @@ namespace SmartSpace.Tests
             Assert.Equal(2, await context.Appointments.CountAsync());
         }
 
-        // =========================================================================
         // TEST CASE 4: Quotation Calculation Normal Path (Labor + Parts)
-        // =========================================================================
-        /// <summary>
+
         /// WHAT: Verifies quotation total calculation formula: (Labor Hours * Hourly Rate) + Sum of Parts Cost.
         /// WHY: Financial business rule - accurate quotation generation for customer transparency.
-        /// VIVA TIP: Explain that (3.5 hrs * $50/hr) + ($25.50 + $45.00) equals $245.50, verified with exact decimal precision.
-        /// </summary>
         [Fact]
         public void CalculateQuotation_LaborAndParts_ReturnsCorrectTotalCost()
         {
@@ -230,14 +210,10 @@ namespace SmartSpace.Tests
             Assert.Equal(245.50m, totalCost);
         }
 
-        // =========================================================================
         // TEST CASE 5: Quotation Calculation Boundary Case (Zero Parts Cost)
-        // =========================================================================
-        /// <summary>
+
         /// WHAT: Verifies quotation calculation when no parts are required (parts cost = 0).
         /// WHY: Edge case validation - labor-only services (e.g. inspection/adjustment) must compute total correctly.
-        /// VIVA TIP: State that an empty parts list handles null/zero values gracefully, calculating purely labor cost without NullReferenceException or arithmetic error.
-        /// </summary>
         [Fact]
         public void CalculateQuotation_ZeroPartsCost_ReturnsLaborOnlyTotalCost()
         {

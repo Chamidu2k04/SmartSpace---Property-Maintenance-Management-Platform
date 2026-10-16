@@ -42,13 +42,7 @@ class SchedulingQuotationAgent:
         state.next_node = "FINALIZE_BOOKING"
         return state
 
-# =========================================================================
-# PYTEST SUITE FOR LANGGRAPH AGENTIC SUBSYSTEM
-# =========================================================================
-
-# =========================================================================
 # TEST CASE 1: Proposal Dictionary Compilation & Schema Validation
-# =========================================================================
 def test_agent_compiles_proposal_with_required_schema():
     """
     WHAT: Validates that the agent node compiles a proposal dictionary containing all required schema keys:
@@ -77,9 +71,7 @@ def test_agent_compiles_proposal_with_required_schema():
     assert proposal["parts_cost"] >= 0
     assert proposal["requires_human_approval"] is True
 
-# =========================================================================
 # TEST CASE 2: Human-In-The-Loop Pause State Verification
-# =========================================================================
 def test_agent_pauses_at_human_in_the_loop_approval():
     """
     WHAT: Asserts that when requires_human_approval is True, the agent graph pauses at 'PAUSE_HUMAN_APPROVAL' state.
