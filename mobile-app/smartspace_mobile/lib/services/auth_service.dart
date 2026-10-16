@@ -1,17 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 
 class AuthService {
-  static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5030/api/auth';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5030/api/auth';
-    } else {
-      return 'http://localhost:5030/api/auth';
-    }
-  }
+  static String get baseUrl => ApiConfig.authUrl;
 
   /// Register a new user. The backend strictly defaults the role to 'Tenant'.
   Future<Map<String, dynamic>> register({
@@ -30,7 +22,7 @@ class AuthService {
             'password': password,
           }),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 45));
 
     final data = jsonDecode(response.body);
 
@@ -56,7 +48,7 @@ class AuthService {
             'password': password,
           }),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 45));
 
     final data = jsonDecode(response.body);
 

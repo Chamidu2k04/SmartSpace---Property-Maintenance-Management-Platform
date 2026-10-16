@@ -312,37 +312,37 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
         )}
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Modern Responsive Table */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/80">
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider w-12 hidden sm:table-cell">#</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Ticket ID</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Unit</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Photo</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted By</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[240px]">Description</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Urgency</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted Date</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[180px]">Update Status</th>
-                <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider w-20">Actions</th>
+              <tr className="border-b border-slate-200/80 bg-slate-50/80">
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider w-12 hidden sm:table-cell">#</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ticket ID</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Unit</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Photo</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Submitted By</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[240px]">Description</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Urgency</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Submitted Date</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[180px]">Update Status</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider w-20">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-slate-100">
               {searchedTickets.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="px-5 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
-                      <Search className="w-10 h-10 text-gray-200" />
-                      <p className="text-sm font-medium text-gray-500">
-                        No tickets match <span className="font-semibold text-gray-700">&quot;{searchQuery}&quot;</span>
+                      <Search className="w-10 h-10 text-slate-300" />
+                      <p className="text-sm font-medium text-slate-500">
+                        No tickets match <span className="font-semibold text-slate-700">&quot;{searchQuery}&quot;</span>
                       </p>
                       <button
                         onClick={() => setSearchQuery('')}
-                        className="text-xs text-[#1E3A8A] hover:underline"
+                        className="text-xs text-blue-600 hover:underline"
                       >
                         Clear search
                       </button>
@@ -353,24 +353,24 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                 searchedTickets.map((ticket, index) => (
                 <tr
                   key={ticket.id}
-                  className="hover:bg-blue-50/30 transition-colors duration-150"
+                  className="hover:bg-slate-50/80 transition-colors duration-150"
                 >
                   {/* Row Number */}
-                  <td className="px-5 py-4 text-gray-400 font-medium text-xs hidden sm:table-cell">
+                  <td className="px-5 py-4 text-slate-400 font-medium text-xs hidden sm:table-cell">
                     {index + 1}
                   </td>
 
                   {/* Ticket ID */}
                   <td className="px-5 py-4">
-                    <span className="inline-block px-2 py-1 rounded-md bg-gray-100 text-gray-600 text-xs font-mono font-semibold">
+                    <span className="inline-block px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-mono font-semibold">
                       {getShortId(ticket.id)}
                     </span>
                   </td>
 
                   {/* Unit Number */}
                   <td className="px-5 py-4">
-                    <span className="inline-flex items-center gap-1.5 font-semibold text-gray-900">
-                      <span className="w-2 h-2 rounded-full bg-[#1E3A8A]/30 shrink-0" />
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-slate-900">
+                      <span className="w-2 h-2 rounded-full bg-blue-600/40 shrink-0" />
                       {ticket.unitNumber || '—'}
                     </span>
                   </td>
@@ -380,33 +380,33 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                     {ticket.thumbnailUrl ? (
                       <button
                         onClick={() => setSelectedTicket(ticket)}
-                        className="group flex items-center gap-1.5 p-1 rounded-lg border border-gray-200 hover:border-[#1E3A8A] bg-gray-50 hover:bg-blue-50/60 transition-all cursor-pointer"
+                        className="group flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 hover:border-blue-600 bg-slate-50 hover:bg-blue-50/60 transition-all cursor-pointer"
                         title="Click to view full photo"
                       >
                         <img
                           src={getFullImageUrl(ticket.thumbnailUrl)}
                           alt="Ticket attachment"
-                          className="w-8 h-8 rounded-md object-cover shrink-0 border border-gray-200"
+                          className="w-8 h-8 rounded-md object-cover shrink-0 border border-slate-200"
                         />
-                        <span className="text-[11px] font-medium text-gray-600 group-hover:text-[#1E3A8A] pr-1 hidden sm:inline">
+                        <span className="text-[11px] font-medium text-slate-600 group-hover:text-blue-600 pr-1 hidden sm:inline">
                           View
                         </span>
                       </button>
                     ) : (
-                      <span className="text-xs text-gray-400 italic">No Photo</span>
+                      <span className="text-xs text-slate-400 italic">No Photo</span>
                     )}
                   </td>
 
                   {/* Submitted By (Tenant Name) */}
                   <td className="px-5 py-4">
-                    <span className="text-xs font-medium text-gray-700 whitespace-nowrap">
+                    <span className="text-xs font-medium text-slate-700 whitespace-nowrap">
                       {ticket.tenantName || '—'}
                     </span>
                   </td>
 
                   {/* Description */}
                   <td className="px-5 py-4">
-                    <p className="text-gray-700 leading-relaxed line-clamp-2 m-0" title={ticket.description}>
+                    <p className="text-slate-700 leading-relaxed line-clamp-2 m-0" title={ticket.description}>
                       {ticket.description}
                     </p>
                   </td>
@@ -422,7 +422,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                   </td>
 
                   {/* Date */}
-                  <td className="px-5 py-4 text-gray-500 text-xs whitespace-nowrap">
+                  <td className="px-5 py-4 text-slate-500 text-xs whitespace-nowrap">
                     {new Date(ticket.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
@@ -434,7 +434,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                   <td className="px-5 py-4">
                     <div className="relative">
                       {updatingId === ticket.id ? (
-                        <div className="flex items-center gap-2 text-[#3B82F6] text-xs font-medium py-2">
+                        <div className="flex items-center gap-2 text-blue-600 text-xs font-medium py-2">
                           <Loader2 className="w-4 h-4 animate-spin" />
                           Updating…
                         </div>
@@ -445,7 +445,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                             onChange={(e) =>
                               handleStatusChange(ticket.id, parseInt(e.target.value, 10))
                             }
-                            className="appearance-none w-full bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg pl-3 pr-8 py-2 cursor-pointer hover:border-[#1E3A8A]/40 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]/50 transition-all"
+                            className="appearance-none w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium rounded-lg pl-3 pr-8 py-2 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                           >
                             {STATUS_OPTIONS.map((opt) => (
                               <option key={opt.value} value={opt.value}>
@@ -453,7 +453,7 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                               </option>
                             ))}
                           </select>
-                          <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         </div>
                       )}
                     </div>
@@ -466,13 +466,13 @@ export default function TicketsTable({ tickets, onTicketUpdated, onTicketDeleted
                     {ticket.status === 'PendingApproval' && <button disabled={aiWorkingId === ticket.id} onClick={() => onReview?.(ticket)} title="Review AI proposal" className="p-2 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50">{aiWorkingId === ticket.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}</button>}
                     {deletingId === ticket.id ? (
                       <div className="flex items-center justify-center">
-                        <Loader2 className="w-4 h-4 animate-spin text-[#EF4444]" />
+                        <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
                       </div>
                     ) : (
                       <button
                         onClick={() => handleDeleteClick(ticket)}
                         title="Delete ticket"
-                        className="p-2 rounded-lg text-[#EF4444] bg-[#EF4444]/10 hover:bg-[#EF4444]/20 transition-all focus:outline-none focus:ring-2 focus:ring-[#EF4444]/30"
+                        className="p-2 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all focus:outline-none focus:ring-2 focus:ring-rose-500/30"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

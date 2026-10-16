@@ -177,19 +177,20 @@ export default function TenantSubmitTicket() {
   return (
     <TenantLayout>
       {/* ── Page Header ── */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3.5 mb-8">
         <button
           type="button"
           onClick={() => navigate("/tenant/maintenance")}
-          className="p-2 rounded-lg hover:bg-white border border-gray-200 text-gray-600 transition-all"
+          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all cursor-pointer shadow-xs"
+          aria-label="Back to maintenance list"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4.5 h-4.5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight m-0">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight m-0">
             Report a Maintenance Issue
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1">
             Fill in the details below and our team will get back to you.
           </p>
         </div>
@@ -198,48 +199,48 @@ export default function TenantSubmitTicket() {
       <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
         {/* ── Error Banner ── */}
         {error && (
-          <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+          <div className="flex items-start gap-3 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-700">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
             <span>{error}</span>
           </div>
         )}
 
         {/* ── Unit Card / Active Lease State ── */}
         {loadingLease ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-3 text-gray-500 text-sm">
-            <Loader2 className="w-5 h-5 animate-spin text-[#1E3A8A]" />
+          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 flex items-center gap-3 text-slate-500 text-sm">
+            <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
             <span>Fetching your active lease details...</span>
           </div>
         ) : leaseError ? (
-          <div className="bg-red-50 rounded-xl border border-red-200 p-6 flex items-start gap-3 text-red-700 text-sm">
-            <AlertTriangle className="w-5 h-5 shrink-0 text-red-500 mt-0.5" />
+          <div className="bg-rose-50 rounded-2xl border border-rose-200 p-6 flex items-start gap-3 text-rose-700 text-sm">
+            <AlertTriangle className="w-5 h-5 shrink-0 text-rose-500 mt-0.5" />
             <div>
-              <p className="font-semibold text-red-800 mb-0.5">⚠️ No active lease found.</p>
-              <p className="text-red-600">Please contact your property manager.</p>
+              <p className="font-semibold text-rose-800 mb-0.5">⚠️ No active lease found.</p>
+              <p className="text-rose-600">Please contact your property manager.</p>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#1E3A8A] shrink-0">
+          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
               <Building2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-base m-0">
+              <h3 className="font-bold text-slate-900 text-base m-0">
                 {lease?.propertyName || "Property"}
               </h3>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Unit Number: <span className="font-semibold text-gray-700">{lease?.unitNumber || "N/A"}</span>
+              <p className="text-sm text-slate-500 mt-0.5">
+                Unit Number: <span className="font-semibold text-slate-800">{lease?.unitNumber || "N/A"}</span>
               </p>
             </div>
           </div>
         )}
 
         {/* ── Description ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-            Description <span className="text-red-500">*</span>
+        <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            Description <span className="text-rose-500">*</span>
           </label>
-          <p className="text-xs text-gray-400 mb-3">
+          <p className="text-xs text-slate-400 mb-3">
             Describe the issue clearly — what is wrong, where it is, how long it has been happening.
           </p>
           <textarea
@@ -247,29 +248,29 @@ export default function TenantSubmitTicket() {
             onChange={e => setDescription(e.target.value)}
             rows={5}
             placeholder="e.g. The kitchen tap has been dripping constantly since last week and the pressure seems low…"
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900"
             required
             minLength={5}
           />
-          <div className="text-right text-xs text-gray-400 mt-1">
+          <div className="text-right text-xs text-slate-400 mt-1">
             {description.trim().length} / min 5 chars
           </div>
         </div>
 
         {/* ── Urgency Level ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-4">
-            Urgency Level <span className="text-red-500">*</span>
+        <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-4">
+            Urgency Level <span className="text-rose-500">*</span>
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {URGENCY_OPTIONS.map(opt => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setUrgency(opt.value)}
-                className="relative flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition-all"
+                className="relative flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition-all cursor-pointer"
                 style={{
-                  borderColor: urgency === opt.value ? opt.color : "rgba(229,231,235,1)",
+                  borderColor: urgency === opt.value ? opt.color : "#e2e8f0",
                   backgroundColor: urgency === opt.value ? opt.bg : "transparent",
                 }}
               >
@@ -280,12 +281,12 @@ export default function TenantSubmitTicket() {
                   />
                   <span
                     className="text-sm font-bold"
-                    style={{ color: urgency === opt.value ? opt.color : "#374151" }}
+                    style={{ color: urgency === opt.value ? opt.color : "#1e293b" }}
                   >
                     {opt.label}
                   </span>
                 </div>
-                <span className="text-xs text-gray-400 leading-tight">
+                <span className="text-xs text-slate-500 leading-tight">
                   {opt.description}
                 </span>
               </button>
@@ -294,11 +295,11 @@ export default function TenantSubmitTicket() {
         </div>
 
         {/* ── Photo Upload ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-            Photos <span className="text-gray-400 font-normal normal-case">(optional, max 5)</span>
+        <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6">
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            Photos <span className="text-slate-400 font-normal normal-case">(optional, max 5)</span>
           </label>
-          <p className="text-xs text-gray-400 mb-4">
+          <p className="text-xs text-slate-400 mb-4">
             Attach photos of the issue to help our team assess it faster.
           </p>
 
@@ -306,14 +307,14 @@ export default function TenantSubmitTicket() {
           {previews.length > 0 && (
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
               {previews.map((src, i) => (
-                <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-100 group">
+                <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group">
                   <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-slate-900/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -333,13 +334,13 @@ export default function TenantSubmitTicket() {
               />
               <label
                 htmlFor="photo-upload"
-                className="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-gray-200 cursor-pointer hover:border-[#1E3A8A] hover:bg-blue-50/40 transition-all"
+                className="flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-slate-200 cursor-pointer hover:border-blue-500 hover:bg-blue-50/30 transition-all"
               >
-                <ImagePlus className="w-8 h-8 text-gray-300" />
-                <span className="text-sm font-medium text-gray-500">
+                <ImagePlus className="w-8 h-8 text-slate-400" />
+                <span className="text-sm font-semibold text-slate-600">
                   Click to add photos
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-400">
                   {images.length} / 5 selected
                 </span>
               </label>
@@ -352,14 +353,14 @@ export default function TenantSubmitTicket() {
           <button
             type="button"
             onClick={() => navigate("/tenant/maintenance")}
-            className="px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all"
+            className="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting || loadingLease || !lease || !lease.unitId}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#1E3A8A] hover:bg-blue-900 disabled:opacity-60 text-white text-sm font-semibold rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/40"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-600/20 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
           >
             {isSubmitting ? (
               <>

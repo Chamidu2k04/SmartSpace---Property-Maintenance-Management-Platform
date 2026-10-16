@@ -38,6 +38,7 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
   const [technicians, setTechnicians] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [properties, setProperties] = useState([]);
+  const [quotations, setQuotations] = useState([]);
   const [preselectedTicketId, setPreselectedTicketId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,16 +70,18 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [appRes, techRes, tickRes, propRes] = await Promise.all([
+      const [appRes, techRes, tickRes, propRes, quotRes] = await Promise.all([
         technicianService.getAppointments(),
         technicianService.getTechnicians(),
         technicianService.getTickets().catch(() => []),
         propertyService.getProperties().catch(() => []),
+        technicianService.getQuotations().catch(() => []),
       ]);
       setAppointments(Array.isArray(appRes) ? appRes : []);
       setTechnicians(Array.isArray(techRes) ? techRes : []);
       setTickets(Array.isArray(tickRes) ? tickRes : []);
       setProperties(Array.isArray(propRes) ? propRes : []);
+      setQuotations(Array.isArray(quotRes) ? quotRes : []);
     } catch (err) {
       setError(err.message || 'Failed to load maintenance appointments.');
     } finally {
@@ -86,14 +89,20 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
     }
   };
 
-  // Filter tickets that do not have any appointment record (active or cancelled)
+  // Filter tickets that do not have any appointment record or existing quotation
   const unscheduledTickets = useMemo(() => {
     if (!tickets || tickets.length === 0) return [];
     const scheduledTicketIds = new Set(
       (appointments || []).map((app) => (app.ticketId || '').toLowerCase())
     );
-    return tickets.filter((t) => !scheduledTicketIds.has((t.id || '').toLowerCase()));
-  }, [tickets, appointments]);
+    const quotationTicketIds = new Set(
+      (quotations || []).map((q) => (q.ticketId || '').toLowerCase())
+    );
+    return tickets.filter((t) => {
+      const tid = (t.id || '').toLowerCase();
+      return !scheduledTicketIds.has(tid) && !quotationTicketIds.has(tid);
+    });
+  }, [tickets, appointments, quotations]);
 
   const handleCreateOrUpdate = async (formData) => {
     if (isTechnician) return;
@@ -639,6 +648,7 @@ export default function AppointmentCalendar({ isTechnicianView = false }) {
           technicians={technicians}
           tickets={tickets}
           existingAppointments={appointments}
+          quotations={quotations}
           preselectedTicketId={preselectedTicketId}
           isLoading={isSaving}
         />

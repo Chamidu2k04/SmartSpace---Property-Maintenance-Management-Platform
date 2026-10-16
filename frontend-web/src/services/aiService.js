@@ -5,7 +5,9 @@ const rawAiUrl = (
   'http://localhost:8000/api'
 ).trim().replace(/\/+$/, '');
 
-const AI_BASE_URL = rawAiUrl.endsWith('/api') ? rawAiUrl : `${rawAiUrl}/api`;
+// Ensure AI_BASE_URL always ends with '/api' without duplicated '/api' or '/api/ai'
+const sanitizedAiUrl = rawAiUrl.replace(/\/api\/ai$/, '').replace(/\/api$/, '');
+const AI_BASE_URL = `${sanitizedAiUrl}/api`;
 
 async function aiRequest(path, options = {}) {
   const token = localStorage.getItem('smartspace_token');

@@ -7,7 +7,9 @@ const rawAiUrl = (
   'http://localhost:8000/api'
 ).trim().replace(/\/+$/, '');
 
-const AI_BASE_URL = rawAiUrl.endsWith('/api') ? rawAiUrl : `${rawAiUrl}/api`;
+// Ensure AI_BASE_URL always ends with '/api' without duplicated '/api' or '/api/inventory-assistant'
+const sanitizedAiUrl = rawAiUrl.replace(/\/api\/inventory-assistant$/, '').replace(/\/api$/, '');
+const AI_BASE_URL = `${sanitizedAiUrl}/api`;
 
 const rawBackendUrl = (
   import.meta.env?.VITE_API_BASE_URL ||
@@ -15,7 +17,8 @@ const rawBackendUrl = (
   'http://localhost:5030/api'
 ).trim().replace(/\/+$/, '');
 
-const BACKEND_BASE_URL = rawBackendUrl.endsWith('/api') ? rawBackendUrl : `${rawBackendUrl}/api`;
+const sanitizedBackendUrl = rawBackendUrl.replace(/\/api$/, '');
+const BACKEND_BASE_URL = `${sanitizedBackendUrl}/api`;
 
 /**
  * Sends a chat message to the Inventory Assistant AI endpoint.

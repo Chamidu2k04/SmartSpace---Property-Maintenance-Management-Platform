@@ -111,12 +111,17 @@ export default function TechnicianProfile() {
     : '0.00';
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl">
       {/* Top Header Card */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight m-0">My Profile</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+              <Wrench className="w-3.5 h-3.5" /> Specialist Profile
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight m-0">My Technician Profile</h1>
+          <p className="text-sm text-slate-500 mt-1">
             Manage your personal profile, credentials, and trade specialty
           </p>
         </div>
@@ -124,7 +129,7 @@ export default function TechnicianProfile() {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white rounded-xl font-semibold text-sm transition-all shadow-sm cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all shadow-xs hover:shadow-md cursor-pointer shrink-0 active:scale-[0.99]"
           >
             <Edit2 className="w-4 h-4" />
             <span>Edit Profile</span>
@@ -140,7 +145,7 @@ export default function TechnicianProfile() {
                 setTradeSpecialty(TRADE_SPECIALTY_MAP[techProfile.tradeSpecialty] || techProfile.tradeSpecialty || 'Plumber');
               }
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-sm transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-sm transition-all cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
             <span>Cancel</span>
@@ -150,42 +155,42 @@ export default function TechnicianProfile() {
 
       {/* Alert Banners */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3 text-sm">
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+        <div className="bg-rose-50/80 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl flex items-start gap-3 text-sm">
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="font-semibold">Update Failed</p>
+            <p className="font-bold">Update Failed</p>
             <p>{error}</p>
           </div>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">
+          <button onClick={() => setError(null)} className="text-rose-400 hover:text-rose-600">
             &times;
           </button>
         </div>
       )}
 
       {successMessage && (
-        <div className="bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-medium animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 shrink-0 text-[#10B981]" />
+        <div className="bg-emerald-50/80 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm font-medium animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
           <span className="flex-1">{successMessage}</span>
         </div>
       )}
 
       {/* Uniform Profile Form Card */}
-      <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100 space-y-6">
+      <div className="bg-white rounded-3xl shadow-xs p-6 sm:p-8 border border-slate-200/80 space-y-6">
         {/* User Identity Header */}
-        <div className="flex items-center gap-5 pb-6 border-b border-gray-100">
-          <div className="w-16 h-16 rounded-2xl bg-[#1E3A8A] text-white font-bold text-2xl flex items-center justify-center shadow-sm shrink-0">
-            {user?.fullName?.charAt(0)?.toLowerCase() || 'u'}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5 pb-6 border-b border-slate-100">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-bold text-2xl flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+            {user?.fullName?.charAt(0) || 'U'}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900 m-0">{user?.fullName}</h2>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-[#10B981]/10 text-[#10B981] font-semibold text-xs rounded-full border border-[#10B981]/20">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+            <h2 className="text-xl font-bold text-slate-900 m-0">{user?.fullName}</h2>
+            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 font-semibold text-xs rounded-full border border-emerald-200/80">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 Role: {user?.role || 'Technician'}
               </span>
-              <span className="inline-flex items-center gap-1 px-3 py-0.5 bg-blue-50 text-blue-700 font-semibold text-xs rounded-full border border-blue-200">
-                <Wrench className="w-3.5 h-3.5" />
-                Trade Specialty: {tradeSpecialtyName}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 font-semibold text-xs rounded-full border border-blue-200/80">
+                <Wrench className="w-3.5 h-3.5 text-blue-600" />
+                Specialty: {tradeSpecialtyName}
               </span>
             </div>
           </div>
@@ -193,83 +198,83 @@ export default function TechnicianProfile() {
 
         {/* Clean 2-Column Grid of Fields */}
         <form onSubmit={handleSaveProfile} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 1. Full Name (Editable in edit mode) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* 1. Full Name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Full Name
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
+                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
                   disabled={!isEditing}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border transition-all ${
+                  className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border transition-all ${
                     isEditing
-                      ? 'border-gray-300 bg-white focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]'
-                      : 'border-gray-200 bg-gray-50 text-gray-900 cursor-not-allowed'
+                      ? 'border-slate-300 bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900'
+                      : 'border-slate-200 bg-slate-50 text-slate-700 cursor-not-allowed'
                   }`}
                 />
               </div>
             </div>
 
-            {/* 2. Email Address (Editable in edit mode) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            {/* 2. Email Address */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="email"
                   disabled={!isEditing}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border transition-all ${
+                  className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border transition-all ${
                     isEditing
-                      ? 'border-gray-300 bg-white focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]'
-                      : 'border-gray-200 bg-gray-50 text-gray-900 cursor-not-allowed'
+                      ? 'border-slate-300 bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900'
+                      : 'border-slate-200 bg-slate-50 text-slate-700 cursor-not-allowed'
                   }`}
                 />
               </div>
             </div>
 
-            {/* 3. Password / Change Password (Editable in edit mode) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Password {isEditing && <span className="text-gray-400 lowercase font-normal">(leave blank to keep current)</span>}
+            {/* 3. Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Password {isEditing && <span className="text-slate-400 lowercase font-normal">(leave blank to keep current)</span>}
               </label>
               <div className="relative">
-                <KeyRound className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
+                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="password"
                   disabled={!isEditing}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={isEditing ? 'Enter new password...' : '••••••••'}
-                  className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border transition-all ${
+                  className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border transition-all ${
                     isEditing
-                      ? 'border-gray-300 bg-white focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]'
-                      : 'border-gray-200 bg-gray-50 text-gray-900 cursor-not-allowed'
+                      ? 'border-slate-300 bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-slate-900 placeholder:text-slate-400'
+                      : 'border-slate-200 bg-slate-50 text-slate-700 cursor-not-allowed'
                   }`}
                 />
               </div>
             </div>
 
-            {/* 4. Trade Specialty (Editable dropdown in edit mode) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            {/* 4. Trade Specialty */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Trade Specialty
               </label>
               <div className="relative">
-                <Wrench className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
+                <Wrench className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 {isEditing ? (
                   <select
                     value={tradeSpecialty}
                     onChange={(e) => setTradeSpecialty(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all cursor-pointer"
+                    className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all cursor-pointer text-slate-900 font-medium"
                   >
                     {TRADE_SPECIALTIES.map((spec) => (
                       <option key={spec} value={spec}>
@@ -282,40 +287,40 @@ export default function TechnicianProfile() {
                     type="text"
                     disabled
                     value={tradeSpecialtyName}
-                    className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-900 font-medium cursor-not-allowed"
+                    className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold cursor-not-allowed"
                   />
                 )}
               </div>
             </div>
 
             {/* 5. Assigned Role */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Assigned Role
               </label>
               <div className="relative">
-                <Shield className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
+                <Shield className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
                   disabled
                   value={user?.role || 'Technician'}
-                  className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-900 font-medium cursor-not-allowed"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold cursor-not-allowed"
                 />
               </div>
             </div>
 
             {/* 6. Hourly Rate (Rs. / hr) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Hourly Rate (Rs. / hr)
               </label>
               <div className="relative">
-                <span className="text-xs font-bold text-gray-400 absolute left-3 top-3.5">Rs.</span>
+                <span className="text-xs font-bold text-slate-400 absolute left-3.5 top-3.5">Rs.</span>
                 <input
                   type="text"
                   disabled
                   value={`Rs. ${hourlyRateFormatted} / hr`}
-                  className="w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-gray-200 bg-gray-50 text-gray-900 font-medium cursor-not-allowed"
+                  className="w-full pl-11 pr-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-semibold cursor-not-allowed"
                 />
               </div>
             </div>
@@ -323,11 +328,11 @@ export default function TechnicianProfile() {
 
           {/* Save Button Bar when Editing */}
           {isEditing && (
-            <div className="pt-4 border-t border-gray-100 flex justify-end">
+            <div className="pt-4 border-t border-slate-100 flex justify-end">
               <button
                 type="submit"
                 disabled={isSaving}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#10B981] hover:bg-[#10B981]/90 text-white rounded-xl font-semibold text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-all shadow-xs hover:shadow-md cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
                 {isSaving ? (
                   <>

@@ -7,6 +7,7 @@ import "package:flutter/foundation.dart" show kIsWeb;
 /// 2. Automatic platform-aware localhost mapping (10.0.2.2 for Android emulators, localhost for Web/iOS)
 class ApiConfig {
   static const String _envBaseUrl = String.fromEnvironment("API_URL", defaultValue: "");
+  static const String _envAiUrl = String.fromEnvironment("AI_URL", defaultValue: "");
 
   static String get baseUrl {
     if (_envBaseUrl.isNotEmpty) {
@@ -23,15 +24,25 @@ class ApiConfig {
     return "http://localhost:5030/api";
   }
 
+  static String get serverRootUrl {
+    if (baseUrl.endsWith("/api")) {
+      return baseUrl.substring(0, baseUrl.length - 4);
+    }
+    return baseUrl;
+  }
+
   static String get authUrl => "$baseUrl/auth";
   static String get usersUrl => "$baseUrl/users";
-  static String get ticketsUrl => baseUrl;
+  static String get ticketsUrl => "$baseUrl/tickets";
 
   /// Backend proxy URL for Inventory AI assistant (safest for mobile, avoiding port/network issues)
   static String get aiProxyUrl => "$baseUrl/inventory/ai-chat";
 
   /// Dedicated base URL for direct communication with SmartSpace Python AI Service (Port 8000)
   static String get aiBaseUrl {
+    if (_envAiUrl.isNotEmpty) {
+      return _envAiUrl;
+    }
     if (_envBaseUrl.isNotEmpty) {
       try {
         final uri = Uri.parse(_envBaseUrl);

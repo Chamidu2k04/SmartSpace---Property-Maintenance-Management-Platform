@@ -1,24 +1,24 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_config.dart';
+import 'storage_service.dart';
 
 class InventoryAssistantService {
   final http.Client _client;
-  final FlutterSecureStorage _secureStorage;
+  final SecureStorageService _storageService;
 
   static const String tokenKey = 'smartspace_jwt_token';
 
   InventoryAssistantService({
     http.Client? client,
-    FlutterSecureStorage? secureStorage,
+    SecureStorageService? storageService,
   })  : _client = client ?? http.Client(),
-        _secureStorage = secureStorage ?? const FlutterSecureStorage();
+        _storageService = storageService ?? SecureStorageService();
 
   Future<String?> _getToken() async {
     try {
-      final token = await _secureStorage.read(key: tokenKey);
+      final token = await _storageService.getToken();
       if (token != null && token.isNotEmpty) return token;
     } catch (_) {}
 
