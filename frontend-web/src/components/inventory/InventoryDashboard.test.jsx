@@ -6,7 +6,6 @@ import { inventoryService } from '../../services/inventoryService';
 
 /**
  * React Component Unit & Integration Tests: Inventory Dashboard & Low-Stock Alerts
- * Designed for SE3090 Assignment 2 & Quality Management Viva requirements.
  * Tests component rendering, low-stock threshold triggers (< 5 units), stat calculations, and filtering.
  */
 
@@ -73,7 +72,6 @@ describe('InventoryDashboard - UI & Low-Stock Alert Suite', () => {
   });
 
   /**
-   * VIVA PREP:
    * What it does: Verifies initial loading state before API promises resolve.
    * Why written: Ensures positive user experience and visual feedback during asynchronous network calls.
    */
@@ -86,7 +84,6 @@ describe('InventoryDashboard - UI & Low-Stock Alert Suite', () => {
   });
 
   /**
-   * VIVA PREP:
    * What it does: Verifies the dashboard renders the main catalog table with all items and supplier names.
    * Why written: Confirms standard happy-path display of the Spare Parts catalog upon successful data loading.
    */
@@ -109,7 +106,6 @@ describe('InventoryDashboard - UI & Low-Stock Alert Suite', () => {
   });
 
   /**
-   * VIVA PREP:
    * What it does: Verifies that the Low Stock Alert counter and badges render accurately when stockQuantity < 5.
    * Why written: Core requirement for inventory risk management; proves the system highlights replenishment needs.
    * Boundary Check: Item 1 has 18 (normal), Item 2 has 3 (< 5, alert), Item 3 has 1 (< 5, alert) => Low Stock = 2 items.
@@ -135,7 +131,6 @@ describe('InventoryDashboard - UI & Low-Stock Alert Suite', () => {
   });
 
   /**
-   * VIVA PREP:
    * What it does: Verifies that clicking the "Low Stock (< 5)" filter toggles the view to only show shortage items.
    * Why written: Tests interactive UI filtering and ensures Inventory Officers can isolate items needing reorder.
    */
@@ -159,7 +154,6 @@ describe('InventoryDashboard - UI & Low-Stock Alert Suite', () => {
   });
 
   /**
-   * VIVA PREP:
    * What it does: Tests search filtering by part name.
    * Why written: Validates client-side query handling and verifies search narrows down the table results.
    */
@@ -180,7 +174,6 @@ describe('InventoryDashboard - UI & Low-Stock Alert Suite', () => {
   });
 
   /**
-   * VIVA PREP:
    * What it does: Tests empty state display when no inventory items match the applied filters.
    * Why written: Proves graceful UI degradation and helpful guidance when data sets are empty.
    */

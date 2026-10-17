@@ -53,7 +53,6 @@ public class InventoryStockTransactionTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it does: Verifies that consuming a valid quantity within current stock bounds succeeds.
     /// Why written: Proves the primary business logic works: StockQuantity decreases by exactly the requested amount and returns HTTP 200 OK.
     /// </summary>
@@ -95,7 +94,6 @@ public class InventoryStockTransactionTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it does: Validates multi-item stock consumption in a single transaction.
     /// Why written: In real maintenance tasks, a technician often consumes multiple distinct parts simultaneously.
     /// </summary>
@@ -152,8 +150,7 @@ public class InventoryStockTransactionTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
-    /// What it does: Tests the exact boundary where requested quantity equals total available stock.
+    /// Tests the exact boundary where requested quantity equals total available stock.
     /// Why written: Validates that stock can safely drop to exactly zero without triggering an underflow or off-by-one error.
     /// </summary>
     [Fact]
@@ -194,8 +191,7 @@ public class InventoryStockTransactionTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
-    /// What it does: Tests minimum allowable non-zero consumption unit (1 unit).
+    /// Tests minimum allowable non-zero consumption unit (1 unit).
     /// Why written: Ensures the lower positive boundary quantity (1) correctly updates stock.
     /// </summary>
     [Fact]
@@ -262,7 +258,6 @@ public class InventoryStockTransactionTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it does: Tests deduction attempt with a non-existent ItemId.
     /// Why written: Protects system against referencing deleted or fabricated inventory items.
     /// </summary>
@@ -289,7 +284,6 @@ public class InventoryStockTransactionTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it does: Tests over-consumption where requested quantity exceeds available warehouse stock.
     /// Why written: Prevents negative inventory balances and maintains financial and stock audit accuracy.
     /// </summary>
@@ -331,7 +325,6 @@ public class InventoryStockTransactionTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it does: Tests ATOMIC TRANSACTION integrity. If one item in a multi-item batch fails, no items should be deducted.
     /// Why written: Crucial for Quality Management Viva. Proves the two-phase deduction pattern:
     /// Phase 1 verifies ALL parts have sufficient stock; Phase 2 performs mutations only if all passed.
@@ -387,7 +380,6 @@ public class InventoryStockTransactionTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it does: Tests that invalid ModelState triggers standard BadRequest.
     /// Why written: Validates ASP.NET Core framework integration and data validation layer enforcement.
     /// </summary>
