@@ -48,7 +48,6 @@ def test_agent_compiles_proposal_with_required_schema():
     WHAT: Validates that the agent node compiles a proposal dictionary containing all required schema keys:
           technician_id, slot_time, labor_cost, parts_cost, and requires_human_approval=True.
     WHY: AI Agent architecture rule - LLM/LangGraph proposals must emit strictly typed dictionary outputs matching API schemas.
-    VIVA TIP: Explain to the examiner that schema assertions guarantee key presence (e.g. technician_id, labor_cost) and type safety before forwarding to backend APIs.
     """
     # ARRANGE: Initialize agent state with maintenance ticket context
     agent = SchedulingQuotationAgent()
@@ -76,7 +75,6 @@ def test_agent_pauses_at_human_in_the_loop_approval():
     """
     WHAT: Asserts that when requires_human_approval is True, the agent graph pauses at 'PAUSE_HUMAN_APPROVAL' state.
     WHY: Safety & governance requirement - AI agent proposals must never auto-execute financial charges without human verification.
-    VIVA TIP: Defend that LangGraph conditional edges intercept proposals, placing execution into PAUSE_HUMAN_APPROVAL until human manager intervention occurs.
     """
     # ARRANGE: Initialize state and agent
     agent = SchedulingQuotationAgent()

@@ -232,6 +232,25 @@ namespace SmartSpace.Tests
             // Calculation: (2.0 * 65.00) + 0 = 130.00
             Assert.Equal(130.00m, totalCost);
         }
+
+        //test case 06
+        [Fact]
+        public async Task BookAppointment_InvalidTimeRange_ThrowsArgumentException()
+        {
+            // Arrange
+            using var context = GetInMemoryDbContext();
+            var service = new TechnicianSchedulingService(context);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() =>
+                 service.BookAppointmentAsync(
+                    Guid.NewGuid(),
+                    Guid.NewGuid(),
+                    DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                    new TimeOnly(11, 0),
+                    new TimeOnly(11, 0)
+            ));
+        }
     }
 }
 
