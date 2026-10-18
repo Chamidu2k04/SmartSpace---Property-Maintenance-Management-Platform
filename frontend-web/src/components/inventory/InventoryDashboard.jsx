@@ -174,7 +174,7 @@ export default function InventoryDashboard() {
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Low Stock Alert</span>
             <div className="text-2xl font-bold text-red-600 mt-1">{lowStockCount} items</div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-red-60 text-red-600 flex items-center justify-center">
             <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
