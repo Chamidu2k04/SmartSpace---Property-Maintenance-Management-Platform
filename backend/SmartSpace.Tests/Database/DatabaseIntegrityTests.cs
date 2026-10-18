@@ -67,7 +67,6 @@ public class DatabaseIntegrityTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Unique constraint on User.Email.
     /// Why written: Proves database rejects duplicate registration attempts at persistence level.
     /// Expected result: DbUpdateException is thrown when saving a duplicate email.
@@ -96,7 +95,6 @@ public class DatabaseIntegrityTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: User uniqueness constraint with two brand-new accounts sharing an email.
     /// Expected result: First save succeeds, second save throws DbUpdateException.
     /// </summary>
@@ -140,7 +138,6 @@ public class DatabaseIntegrityTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Cascade delete rule on Property -> Units (DeleteBehavior.Cascade).
     /// Why written: Deleting a Property must automatically purge its constituent Units to prevent orphaned units.
     /// Expected result: Deleting Property removes all linked Units from database.
@@ -188,7 +185,6 @@ public class DatabaseIntegrityTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Cascade delete rule on MaintenanceTicket -> TicketImages (DeleteBehavior.Cascade).
     /// Expected result: Deleting a ticket purges its image attachment records.
     /// </summary>
@@ -237,7 +233,6 @@ public class DatabaseIntegrityTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Restrict delete rule on Supplier -> InventoryItem (DeleteBehavior.Restrict).
     /// Why written: Prevents accidental deletion of a supplier that still has active catalog parts.
     /// Expected result: Database throws DbUpdateException blocking deletion.
@@ -281,7 +276,6 @@ public class DatabaseIntegrityTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Restrict delete rule on Unit -> Lease (DeleteBehavior.Restrict).
     /// Why written: A property unit cannot be deleted while an active or historical lease contract points to it.
     /// Expected result: Database throws DbUpdateException.
@@ -328,7 +322,6 @@ public class DatabaseIntegrityTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Foreign key constraint validation on MaintenanceTicket.TenantId and UnitId.
     /// Why written: Ensures orphaned tickets referencing non-existent tenant accounts are rejected by the DB engine.
     /// Expected result: DbUpdateException is thrown.
@@ -370,7 +363,6 @@ public class DatabaseIntegrityTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: ACID Rollback atomicity during a multi-operation inventory workflow.
     /// Why written: If stock quantity is reduced but reservation insertion fails, the transaction must
     ///              roll back completely to prevent silent inventory shrinkage.
@@ -430,7 +422,6 @@ public class DatabaseIntegrityTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: ACID Commit atomicity across multiple entities (Appointment + Quotation).
     /// Why written: Both the scheduled appointment and its financial estimate must persist atomically together.
     /// Expected result: Both entities are successfully committed and queryable.
@@ -491,7 +482,6 @@ public class DatabaseIntegrityTests : IDisposable
     // =========================================================================
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Initial seed data in ApplicationDbContext.OnModelCreating.
     /// Why written: Guarantees that baseline system accounts (Tenant, PropertyManager, Technician, InventoryOfficer)
     ///              are always populated when the database is created.
@@ -510,7 +500,6 @@ public class DatabaseIntegrityTests : IDisposable
     }
 
     /// <summary>
-    /// VIVA PREP:
     /// What it tests: Precision and persistence of decimal(18,2) monetary fields in Quotation entity.
     /// Expected result: Preserves monetary precision without unwanted truncation or type errors.
     /// </summary>
